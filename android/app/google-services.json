@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "616051480697",
+    "firebase_url": "https://ie-zakat.firebaseio.com",
+    "project_id": "ie-zakat",
+    "storage_bucket": "ie-zakat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616051480697:android:f9fa25cda02bd3ef635ca8",
+        "android_client_info": {
+          "package_name": "com.example.flutteriezakat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "616051480697-7su4e4jf56eblp3dlr12vihjnq7sqnmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3RDPBAe6CZYgGZ_A0qVRHSKrXPKRrJHU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "616051480697-7su4e4jf56eblp3dlr12vihjnq7sqnmp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
