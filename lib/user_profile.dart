@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutteriezakat/services/auth.dart';
+import 'package:flutteriezakat/database.dart';
+
 
 void main() => runApp(MaterialApp(
   home: profile(),
