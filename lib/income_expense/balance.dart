@@ -19,6 +19,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rxdart/streams.dart';
+import 'package:async/async.dart';
+import 'package:rxdart/rxdart.dart';
 
 extension ListUtils<T> on List<T> {
   num sumBy(num f(T element)) {
@@ -126,13 +128,30 @@ class _balanceState extends State<balance> {
     );
   }
 
+  String expenseText;
+  double totExpense;
+  double newValue;
+  double resultValue;
+
+  List<double> expenseList (){
+    Firestore.instance.collection('expenses').getDocuments().then((querySnapshot){
+      querySnapshot.documents.forEach((result){
+        //print(result.data['amount']);
+        expenseText = result.data['amount'].toString();
+        var totExpense = double.parse(expenseText);
+        resultValue = totExpense+totExpense;
+        //newValue = double.parse(expenseText);
+        //resultValue = totExpense+newValue;
+        print(resultValue);
+      });
+    });
+  }
+
   List <Widget> expenseRecordList (AsyncSnapshot snapshot){
     return snapshot.data.documents.map<Widget>((document){
       //snapshot.data.documents.map<int>((m) => int.parse(document['amount'])).reduce((a,b )=>a+b);
 
-      var totalExpense = double.parse(document['amount']);
-
-
+      //var totalExpense = double.parse(document['amount']);
 
       return Container(
         padding: EdgeInsets.all(3),
@@ -163,11 +182,8 @@ class _balanceState extends State<balance> {
               child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.black54,),
                 onPressed: (){
-                  setState(() {
-                    totalExpense = totalExpense;
-                  });
-                  print(totalExpense);
-                  //_deleteDialog(document['id']);
+                  //print(totalExpense);
+                  _deleteDialog(document['id']);
                   //readData(document['id']);
                 },
               ),
@@ -225,14 +241,62 @@ class _balanceState extends State<balance> {
     }).toList();
   }
 
+  List<Widget>combinedRecordList (AsyncSnapshot snapshot){
+    return snapshot.data.documents.map<Widget>((document){
+      return Container(
+        padding: EdgeInsets.all(3),
+        margin: EdgeInsets.all(3),
+        decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(10)
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Icon(MdiIcons.arrowUpCircle, color: Colors.green,),
+            Text(document['type']),
+            SizedBox(width: 5,),
+            Text(document['amount']),
+            SizedBox(width: 5,),
+            Text(document['note']),
+            SizedBox(width: 5,),
+            Text(DateFormat("dd/MM").format(document['date'].toDate())),
+            SizedBox(width: 5,),
+            /*RaisedButton.icon(onPressed: (){
+              //_deleteDialog(document['id']);
+              readData(document['id']);
+            }, icon: Icon(Icons.delete, color: Colors.white,), label: Text('', style: TextStyle(color: Colors.white),), color: Colors.red,),*/
+            //Spacer(),
+            Container(
+              padding: EdgeInsets.all(0.1),
+              margin: EdgeInsets.all(0.1),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.delete, color: Colors.black54,),
+                onPressed: (){
+                  _deleteDialog(document['id']);
+                  //readData(document['id']);
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
   Stream <List<QuerySnapshot>> combinedStream (){
     Stream expenseStream = Firestore.instance.collection('expenses').snapshots();
     Stream incomeStream = Firestore.instance.collection('income').snapshots();
-    //return StreamZip([expenseStream, incomeStream]);
+    return StreamZip([expenseStream, incomeStream]);
   }
 
   @override
   Widget build(BuildContext context) {
+    List<int> text = [1,2,3,4];
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,
@@ -276,6 +340,33 @@ class _balanceState extends State<balance> {
             ),
           ),
           SizedBox(height: 50,),
+          RaisedButton(
+            child: Text('test'),
+            onPressed: (){
+              setState(() {
+                expenseList();
+                //totalExpense = totalExpense;
+              });
+            },
+          ),
+          /*Container(
+            padding: EdgeInsets.all(10),
+            child: StreamBuilder<List<QuerySnapshot>>(
+              stream: combinedStream(),
+              builder: (BuildContext context,AsyncSnapshot<List<QuerySnapshot>> snapshot){
+                return Column(
+                  children: combinedRecordList(snapshot),
+                );
+              },
+            ),
+          ),*/
+          Container(
+            child: Column(
+              children: [
+                for(var i in text) Text(i.toString()),
+              ],
+            ),
+          ),
           Container(
             padding: EdgeInsets.all(10),
             child: StreamBuilder(
