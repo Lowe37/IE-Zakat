@@ -74,7 +74,6 @@ class _plantationState extends State<plantation> {
   }
 
   DateTime _date = new DateTime.now();
-  TimeOfDay _time = new TimeOfDay.now();
 
   Future <Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(context: context, initialDate: _date, firstDate: new DateTime(2015), lastDate: new DateTime(2030));
@@ -98,25 +97,6 @@ class _plantationState extends State<plantation> {
   String costZakatText;
   String costNetProfit;
 
-  /*void addExpense() async {
-    double zakatAmount = double.parse(zakatText);
-    String zakatType;
-    bool zakatPurchase;
-
-    DocumentReference documentReference = await Firestore.instance.collection('expenses').document();
-    Firestore.instance.collection('expenses').add({
-      'Zakat Amount': zakatAmount,
-      'Type' : zakatType,
-      'Purchase' : zakatPurchase,
-
-    }).then((value){
-      print(value.documentID);
-      Firestore.instance.collection('expenses').document(value.documentID).updateData({
-        'id' : value.documentID,
-      });
-    });
-  }*/
-
   Widget naturalWater(){
     return SingleChildScrollView(
       child: Container(
@@ -133,6 +113,22 @@ class _plantationState extends State<plantation> {
                   },
                 ),
                 Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
+                Spacer(),
+                RaisedButton(
+                  onPressed: (){
+                    StreamBuilder(
+                      stream: Firestore.instance.collection('zakatTracker').snapshots(),
+                      builder: (context, snapshot){
+                        if(!snapshot.hasData) return const Text('Add some Zakat Tracker list');
+                        return Column(
+                          //children: zakatTrackerList(snapshot),
+                        );
+                      },
+                    );
+                  },
+                  child: Text('Open lists', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  color: Colors.green,
+                ),
               ],
             ),
             SizedBox(height: 20,),

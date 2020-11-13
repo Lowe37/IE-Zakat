@@ -252,7 +252,6 @@ class _expenseMenuState extends State<expenseMenu> {
                           color: Colors.transparent, //could change this to Color(0xFF737373),
                           //so you don't have to change MaterialApp canvasColor
                           child: new Container(
-
                               decoration: new BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: new BorderRadius.only(

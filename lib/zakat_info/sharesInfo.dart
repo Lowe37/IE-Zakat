@@ -51,7 +51,7 @@ class _sharesInfoState extends State<sharesInfo> {
               SizedBox(height: 40),
               Align(
                 alignment: Alignment.topCenter,
-                child: Text("Zakat on Shares", style: TextStyle(fontWeight: FontWeight.w200, fontSize: 30),),
+                child: Text("Zakat on Savings", style: TextStyle(fontWeight: FontWeight.w200, fontSize: 30),),
               ),
               //Text(AppLocalizations.of(context).translate("title")),
               SizedBox(height: 30,),

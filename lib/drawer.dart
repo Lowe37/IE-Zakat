@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutteriezakat/business_tracker/business_home.dart';
 import 'package:flutteriezakat/income_expense/balance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
+import 'package:flutteriezakat/zakat_tracker/zakat_tracker_home.dart';
 
 class CustomDrawer extends StatefulWidget {
 
@@ -59,10 +59,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ),
           ListTile(
             leading: Icon(Icons.monochrome_photos),
-            title: Text('Business Tracker'),
+            title: Text('Zakat Tracker'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => balanceBusiness()
+                  builder: (context) => zakatTrackerHome()
               ));
             },
           ),
@@ -78,6 +78,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
           ListTile(
             leading: Icon(Icons.question_answer),
             title: Text('FAQ'),
+          ),
+          ListTile(
+            onTap: (){
+              showAboutDialog(
+                context: context,
+                applicationVersion: '1.0.1',
+                applicationLegalese: 'testttt',
+              );
+            },
+            leading: Icon(Icons.question_answer),
+            title: Text('About Money Tracker'),
           ),
           SizedBox(height: 140,),
           ListTile(

@@ -155,11 +155,11 @@ class _businessState extends State<business> {
   void initState(){
     super.initState();
     //small business
-    netProfitText = '0';
-    smallBusinessZakatText = '0';
+    netProfitText = '0.0';
+    smallBusinessZakatText = '0.0';
     //medium business
-    netAmountText = '0';
-    mediumBusinessZakatText = '0';
+    netAmountText = '0.0';
+    mediumBusinessZakatText = '0.0';
     totalAssetAmount = 0;
     totalCostAmount = 0;
   }
@@ -252,19 +252,6 @@ class _businessState extends State<business> {
                   hintText: 'Enter your business name'
               ),
             ),
-
-            /*FloatingActionButton(
-                  onPressed: () {
-                    return showDialog(
-                      context: context,
-                      builder: (context){
-                        return AlertDialog(
-                          content: Text(businessNameController.text),
-                        );
-                      }
-                    );
-                  },
-                ),*/
 
             SizedBox(height: 20,),
             Text('Annual Profit', style: TextStyle(fontWeight: FontWeight.w400),),
@@ -563,135 +550,10 @@ class _businessState extends State<business> {
     );
   }//completed
 
-  Widget largeBusiness(){
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: (){
-                    _selectDate(context);
-                  },
-                ),
-                Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
-              ],
-            ),
-            SizedBox(height: 20,),
-            Text('Business Name', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            TextField(
-              controller: businessNameController,
-              decoration: InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(10),
-                  ),
-                  hintText: 'Enter your business name'
-              ),
-            ),
-            SizedBox(height: 20,),
-            Text('Annual Profit', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            TextField(
-              keyboardType: TextInputType.number,
-              controller: annualProfitController,
-              decoration: InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(10),
-                  ),
-                  hintText: 'Enter your annual profit'
-              ),
-            ),
-
-            SizedBox(height: 20,),
-            Text('Annual Cost', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            TextField(
-              keyboardType: TextInputType.number,
-              controller: annualCostController,
-              decoration: InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(10),
-                  ),
-                  hintText: 'Enter your annual cost'
-              ),
-            ),
-
-            SizedBox(height: 20,),
-            Text('Net Profit', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            Text('$netProfitText', style: TextStyle(
-                fontWeight: FontWeight.w100, fontSize: 20),),
-            SizedBox(height: 20,),
-            /*Text('Zakat amount', style: TextStyle(fontWeight: FontWeight.w400),),
-                SizedBox(height: 10,),
-                TextField(
-
-                  decoration: InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(10),
-                      ),
-                      hintText: 'Amount of Zakat'
-                  ),
-                ),*/
-            Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            Text('$largeBusinessZakatText', style: TextStyle(
-                fontWeight: FontWeight.w100, fontSize: 20),),
-
-            SizedBox(height: 30,),
-            Center(
-              child: RaisedButton(
-                onPressed: () {
-                  /*double annualProfit = double.parse(annualProfitController.text);
-                      double annualCost = double.parse(annualCostController.text);
-                      double netProfit = annualProfit-annualCost;
-                      double zakatAmount = netProfit*2.5/100;
-                      print(zakatAmount.toString());*/
-                  setState(() {
-
-                  });
-                },
-                color: Colors.green,
-                child: Text('Calculate now', style: TextStyle(color: Colors.white),),
-              ),
-            ),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                RaisedButton(
-                  onPressed: (){
-                    annualCostController.clear();
-                    annualProfitController.clear();
-                  },
-                  color: Colors.red,
-                  child: Text('Reset', style: TextStyle(color: Colors.white),),
-                ),
-                SizedBox(width: 20,),
-                RaisedButton(
-                  onPressed: () {
-
-                  },
-                  color: Colors.blue,
-                  child: Text('Save', style: TextStyle(color: Colors.white),),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.cyan,
@@ -704,9 +566,6 @@ class _businessState extends State<business> {
               Tab(
                 child: Text('Medium'),
               ),
-              Tab(
-                child: Text('Large'),
-              ),
             ],
           ),
         ),
@@ -714,7 +573,6 @@ class _businessState extends State<business> {
           children: <Widget>[
             smallBusiness(),
             mediumBusiness(),
-            largeBusiness(),
           ],
         ),
       ),
