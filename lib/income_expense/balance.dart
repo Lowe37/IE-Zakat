@@ -208,10 +208,6 @@ class _balanceState extends State<balance> {
 
   List <Widget> expenseRecordList (AsyncSnapshot snapshot){
     return snapshot.data.documents.map<Widget>((document){
-      //snapshot.data.documents.map<int>((m) => int.parse(document['amount'])).reduce((a,b )=>a+b);
-
-      //var totalExpense = double.parse(document['amount']);
-
       return Container(
         padding: EdgeInsets.all(3),
         margin: EdgeInsets.all(3),
@@ -414,17 +410,6 @@ class _balanceState extends State<balance> {
                 });
               },
             ),
-            /*Container(
-              padding: EdgeInsets.all(10),
-              child: StreamBuilder<List<QuerySnapshot>>(
-                stream: combinedStream(),
-                builder: (BuildContext context,AsyncSnapshot<List<QuerySnapshot>> snapshot){
-                  return Column(
-                    children: combinedRecordList(snapshot),
-                  );
-                },
-              ),
-            ),*/
             Container(
               padding: EdgeInsets.all(10),
               child: StreamBuilder(

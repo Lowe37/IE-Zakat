@@ -3,6 +3,7 @@ import 'package:flutteriezakat/drawer.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutteriezakat/zakat_tracker/SubCategory.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -29,7 +30,7 @@ class zakatTrackerHome extends StatefulWidget {
   _zakatTrackerHomeState createState() => _zakatTrackerHomeState();
 }
 
-class _zakatTrackerHomeState extends State<zakatTrackerHome> {
+class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerProviderStateMixin{
 
   final nameController = new TextEditingController();
   final costOrProfitController = new TextEditingController();
@@ -45,10 +46,22 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
     super.dispose();
   }
 
+  AnimationController controller;
+  Animation<double> scaleAnimation;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation =
+        CurvedAnimation(parent: controller, curve: Curves.elasticInOut);
+
+    controller.addListener(() {
+      setState(() {});
+    });
+
+    controller.forward();
   }
 
   void signOut(BuildContext context){
@@ -66,8 +79,6 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
     Firestore.instance.collection('zakatTracker').add({
       'name': nameController.text,
       'type' : typeText,
-      'profit' : double.parse(profitController.text),
-      'cost' : double.parse(costController.text),
       'date' : _date,
 
     }).then((value){
@@ -122,73 +133,79 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add information'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                DropDown(
-                  items: ["Profit", "Cost"],
-                  hint: Text('Select type'),
-                  isExpanded: true,
-                  onChanged: (val){
-                    costOrProfit = val.toString();
-                    print(costOrProfit);
+        return Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            child: AlertDialog(
+              title: Text('Add information'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    DropDown(
+                      items: ["Profit", "Cost"],
+                      hint: Text('Select type'),
+                      isExpanded: true,
+                      onChanged: (val){
+                        costOrProfit = val.toString();
+                        print(costOrProfit);
+                      },
+                    ),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      controller: costOrProfitController,
+                      decoration: InputDecoration(
+                        //errorText: errorValidate ? 'List name is required' : null,
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(10),
+                          ),
+                          hintText: 'Amount'
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)
+                        ),
+                        onPressed: (){
+                          deleteList(docID);
+                          Navigator.of(context).pop();
+                        },
+                        color: Colors.red,
+                        child: Text('Delete list', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    costOrProfitController.clear();
                   },
                 ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: costOrProfitController,
-                  decoration: InputDecoration(
-                    //errorText: errorValidate ? 'List name is required' : null,
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(10),
-                      ),
-                      hintText: 'Amount'
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
                   ),
-                ),
-                SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18)
-                    ),
-                    onPressed: (){
-                      deleteList(docID);
-                      Navigator.of(context).pop();
-                    },
-                    color: Colors.red,
-                    child: Text('Delete list', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                  ),
+                  child: Text('Update',style: TextStyle(fontWeight: FontWeight.bold),),
+                  onPressed: () {
+                    addCostOrProfit(docID);
+                    Navigator.of(context).pop();
+                    costOrProfitController.clear();
+                  },
+                  color: Colors.green,
                 ),
               ],
             ),
           ),
-          actions: <Widget>[
-            RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18)
-              ),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey),),
-              onPressed: () {
-                Navigator.of(context).pop();
-                costOrProfitController.clear();
-              },
-            ),
-            RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18)
-              ),
-              child: Text('Update',style: TextStyle(fontWeight: FontWeight.bold),),
-              onPressed: () {
-                addCostOrProfit(docID);
-                Navigator.of(context).pop();
-                costOrProfitController.clear();
-              },
-              color: Colors.green,
-            ),
-          ],
         );
       },
     );
@@ -199,93 +216,71 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add information'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('List name', style: TextStyle(fontWeight: FontWeight.w400),),
-                SizedBox(height: 10,),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    //errorText: errorValidate ? 'List name is required' : null,
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(10),
+        return Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            child: AlertDialog(
+              title: Text('Add information'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('List name', style: TextStyle(fontWeight: FontWeight.w400),),
+                    SizedBox(height: 10,),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        //errorText: errorValidate ? 'List name is required' : null,
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(10),
+                          ),
+                          hintText: 'Enter name'
                       ),
-                      hintText: 'Enter name'
-                  ),
+                    ),
+                    SizedBox(height: 20,),
+                    Text('Zakat category', style: TextStyle(fontWeight: FontWeight.w400),),
+                    DropDown(
+                      items: ["Business", "Income", "Savings", "Plantation"],
+                      hint: Text('Select category'),
+                      isExpanded: true,
+                      onChanged: (val){
+                        typeText = val.toString();
+                        print(typeText);
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20,),
-                Text('Zakat category', style: TextStyle(fontWeight: FontWeight.w400),),
-                DropDown(
-                  items: ["Business", "Gold", "Income", "Shares", "Plantation", "Livestock"],
-                  hint: Text('Select category'),
-                  isExpanded: true,
-                  onChanged: (val){
-                    typeText = val.toString();
-                    print(typeText);
+              ),
+              actions: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    nameController.clear();
+                    profitController.clear();
+                    costController.clear();
                   },
                 ),
-                SizedBox(height: 20,),
-                Text('Profit', style: TextStyle(fontWeight: FontWeight.w400),),
-                SizedBox(height: 10,),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: profitController,
-                  decoration: InputDecoration(
-                    //errorText: errorValidate ? 'List name is required' : null,
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(10),
-                      ),
-                      hintText: 'Amount'
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
                   ),
-                ),
-                SizedBox(height: 20,),
-                Text('Cost', style: TextStyle(fontWeight: FontWeight.w400),),
-                SizedBox(height: 10,),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  controller: costController,
-                  decoration: InputDecoration(
-                    //errorText: errorValidate ? 'List name is required' : null,
-                      border: new OutlineInputBorder(
-                        borderRadius: new BorderRadius.circular(10),
-                      ),
-                      hintText: 'Amount'
-                  ),
+                  child: Text('Add',style: TextStyle(fontWeight: FontWeight.bold),),
+                  onPressed: () {
+                    addZakatTracker();
+                    Navigator.of(context).pop();
+                    nameController.clear();
+                    profitController.clear();
+                    costController.clear();
+                  },
+                  color: Colors.green,
                 ),
               ],
             ),
           ),
-          actions: <Widget>[
-            RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18)
-              ),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey),),
-              onPressed: () {
-                Navigator.of(context).pop();
-                nameController.clear();
-                profitController.clear();
-                costController.clear();
-              },
-            ),
-            RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18)
-              ),
-              child: Text('Add',style: TextStyle(fontWeight: FontWeight.bold),),
-              onPressed: () {
-                addZakatTracker();
-                Navigator.of(context).pop();
-                nameController.clear();
-                profitController.clear();
-                costController.clear();
-              },
-              color: Colors.green,
-            ),
-          ],
         );
       },
     );
@@ -306,10 +301,6 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
             Text(document['name']),
             SizedBox(width: 5,),
             Text(document['type']),
-            SizedBox(width: 5,),
-            Text(document['profit'].toString()),
-            SizedBox(width: 5,),
-            Text(document['cost'].toString()),
             SizedBox(width: 5,),
             SizedBox(
               height: 35,
@@ -337,7 +328,7 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,
-        title: Text('Business'),
+        title: Text('Zakat Tracker'),
       ),
       drawer: CustomDrawer(),
       body: Padding(
@@ -352,15 +343,25 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        child: Column(
-                          children: <Widget>[
-                            Text(doc[index].data['name']),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            Text(doc[index].data['type']),
-                          ],
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    SubCategory(doc[index].documentID)),
+                          );
+                        },
+                        child: Card(
+                          child: Column(
+                            children: <Widget>[
+                              Text('Name: '+doc[index].data['name']),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Text('Type: '+doc[index].data['type']),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -371,6 +372,13 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+      _addDialog();
+    },
+    backgroundColor: Colors.cyan,
+    child: Icon(Icons.add),
+      )
     );
   }
 }

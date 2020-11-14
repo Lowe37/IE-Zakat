@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: InkWell(
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return zakatList();
+                        return viewZakatList();
                       }));
                     },
                     child: Text('View your Zakat records', style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutteriezakat/models/user.dart';
+import 'package:flutteriezakat/zakat_types/openList.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:flutteriezakat/zakat_types/plantation_type.dart';
@@ -14,7 +15,10 @@ class plantation extends StatefulWidget {
 }
 
 
-class _plantationState extends State<plantation> {
+class _plantationState extends State<plantation> with SingleTickerProviderStateMixin {
+
+  AnimationController controller;
+  Animation<double> scaleAnimation;
 
   @override
   void initState() {
@@ -28,6 +32,17 @@ class _plantationState extends State<plantation> {
     //cost water 7.5%
     costNetProfit = '0';
     costZakatText = '0';
+
+    //animation
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation =
+        CurvedAnimation(parent: controller, curve: Curves.elasticInOut);
+
+    controller.addListener(() {
+      setState(() {});
+    });
+    controller.forward();
   }
 
   /*setSelectedRadio (int val) {
@@ -54,7 +69,7 @@ class _plantationState extends State<plantation> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
+    super.dispose();
     //10%
     totWeightController.dispose();
     totCostController.dispose();
@@ -70,7 +85,6 @@ class _plantationState extends State<plantation> {
     totCostCostController.dispose();
     yieldPerKgCostController.dispose();
     debtCostController.dispose();
-    super.dispose();
   }
 
   DateTime _date = new DateTime.now();
@@ -87,15 +101,294 @@ class _plantationState extends State<plantation> {
     }
   }
 
+  double newValue;
+  double totCost;
+
+  //natural
+  Future<void> _addDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            child: AlertDialog(
+              title: Text('Select list'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(0),
+                      child: StreamBuilder(
+                        stream: Firestore.instance.collection('zakatTracker').where('type', isEqualTo: 'Plantation').snapshots(),
+                        builder: (context, snapshot){
+                          if(snapshot.data == null) return CircularProgressIndicator();
+                          return Column(
+                            children: eligibleList(snapshot),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List <Widget> eligibleList (AsyncSnapshot snapshot){
+    return snapshot.data.documents.map<Widget>((document){
+      return Card(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text(document['name']),
+            SizedBox(width: 5,),
+            Text(document['type']),
+            SizedBox(width: 5,),
+            Spacer(),
+            RaisedButton(
+              color: Colors.white,
+              child: Text('Select'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                totCostController.text = totCost.toString();
+                //Navigator.of(context).pop();
+                setState(() {
+                  double total = 0.0;
+                  Firestore.instance.collection("zakatTracker").getDocuments().then((querySnapshot) {
+                    querySnapshot.documents.forEach((result) {
+                      Firestore.instance.collection("zakatTracker").document(result.documentID).collection("costSub").getDocuments().then((querySnapshot) {
+                        querySnapshot.documents.forEach((result) {
+                          newValue = double.parse(result.data['cost'].toString());
+                          print(newValue);
+                          total += newValue;
+                          //print(result.data['profit']);
+                        });
+                        totCost = total;
+                      });
+                    });
+                  });
+                });
+              },
+            ),
+            SizedBox(width: 5,),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  //machine
+  Future<void> _addDialogMachine() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            child: AlertDialog(
+              title: Text('Select list'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(0),
+                      child: StreamBuilder(
+                        stream: Firestore.instance.collection('zakatTracker').where('type', isEqualTo: 'Plantation').snapshots(),
+                        builder: (context, snapshot){
+                          if(snapshot.data == null) return CircularProgressIndicator();
+                          return Column(
+                            children: eligibleListMachine(snapshot),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List <Widget> eligibleListMachine (AsyncSnapshot snapshot){
+    return snapshot.data.documents.map<Widget>((document){
+      return Card(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text(document['name']),
+            SizedBox(width: 5,),
+            Text(document['type']),
+            SizedBox(width: 5,),
+            Spacer(),
+            RaisedButton(
+              color: Colors.white,
+              child: Text('Select'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                totCostMachineController.text = totCost.toString();
+                //Navigator.of(context).pop();
+                setState(() {
+                  double total = 0.0;
+                  Firestore.instance.collection("zakatTracker").getDocuments().then((querySnapshot) {
+                    querySnapshot.documents.forEach((result) {
+                      Firestore.instance.collection("zakatTracker").document(result.documentID).collection("costSub").getDocuments().then((querySnapshot) {
+                        querySnapshot.documents.forEach((result) {
+                          newValue = double.parse(result.data['cost'].toString());
+                          print(newValue);
+                          total += newValue;
+                          //print(result.data['profit']);
+                        });
+                        totCost = total;
+                      });
+                    });
+                  });
+                });
+              },
+            ),
+            SizedBox(width: 5,),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  //cost
+  Future<void> _addDialogCost() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: ScaleTransition(
+            scale: scaleAnimation,
+            child: AlertDialog(
+              title: Text('Select list'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(0),
+                      child: StreamBuilder(
+                        stream: Firestore.instance.collection('zakatTracker').where('type', isEqualTo: 'Plantation').snapshots(),
+                        builder: (context, snapshot){
+                          if(snapshot.data == null) return CircularProgressIndicator();
+                          return Column(
+                            children: eligibleListCost(snapshot),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List <Widget> eligibleListCost (AsyncSnapshot snapshot){
+    return snapshot.data.documents.map<Widget>((document){
+      return Card(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Text(document['name']),
+            SizedBox(width: 5,),
+            Text(document['type']),
+            SizedBox(width: 5,),
+            Spacer(),
+            RaisedButton(
+              color: Colors.white,
+              child: Text('Select'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                totCostCostController.text = totCost.toString();
+                //Navigator.of(context).pop();
+                setState(() {
+                  double total = 0.0;
+                  Firestore.instance.collection("zakatTracker").getDocuments().then((querySnapshot) {
+                    querySnapshot.documents.forEach((result) {
+                      Firestore.instance.collection("zakatTracker").document(result.documentID).collection("costSub").getDocuments().then((querySnapshot) {
+                        querySnapshot.documents.forEach((result) {
+                          newValue = double.parse(result.data['cost'].toString());
+                          print(newValue);
+                          total += newValue;
+                          //print(result.data['profit']);
+                        });
+                        totCost = total;
+                      });
+                    });
+                  });
+                });
+              },
+            ),
+            SizedBox(width: 5,),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
   //natural water 10%
   String naturalZakatText;
   String naturalNetProfit;
+  bool naturalWajibZakat = false; //condition to pay zakat or not
   //machine water 5%
   String machineZakatText;
   String machineNetProfit;
+  bool machineWajibZakat = false;
   //cost water 7.5%
   String costZakatText;
   String costNetProfit;
+  bool costWajibZakat = false;
 
   Widget naturalWater(){
     return SingleChildScrollView(
@@ -116,15 +409,11 @@ class _plantationState extends State<plantation> {
                 Spacer(),
                 RaisedButton(
                   onPressed: (){
-                    StreamBuilder(
-                      stream: Firestore.instance.collection('zakatTracker').snapshots(),
-                      builder: (context, snapshot){
-                        if(!snapshot.hasData) return const Text('Add some Zakat Tracker list');
-                        return Column(
-                          //children: zakatTrackerList(snapshot),
-                        );
-                      },
-                    );
+                    //getData(docID);
+                    /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return OpenList();
+                    }));*/
+                    _addDialog();
                   },
                   child: Text('Open lists', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                   color: Colors.green,
@@ -169,6 +458,9 @@ class _plantationState extends State<plantation> {
                   ),
                   hintText: '0'
               ),
+              onChanged: (text){
+                totCostController.text = totCost.toString();
+              },
             ),
             SizedBox(height: 20,),
             Text('Debt per harvesting season', style: TextStyle(fontWeight: FontWeight.w400),),
@@ -183,7 +475,6 @@ class _plantationState extends State<plantation> {
                   hintText: '0'
               ),
             ),
-
             SizedBox(height: 20,),
             Text('Net profit', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
@@ -211,8 +502,10 @@ class _plantationState extends State<plantation> {
 
                     if(totWeight >= 652.8){
                       naturalZakatText = _zakatAmount.toString();
+                      naturalWajibZakat = true;
                     } else {
                       naturalZakatText = 'No Zakat';
+                      naturalWajibZakat = false;
                     }
                   });
                 },
@@ -239,8 +532,19 @@ class _plantationState extends State<plantation> {
                 ),
                 SizedBox(width: 20,),
                 RaisedButton(
-                  onPressed: () {
+                  onPressed: () async  {
+                      Firestore.instance.collection('zakat').add({
+                        'type': 'Plantation 10%',
+                        'zakatAmount' : naturalZakatText,
+                        'wajibZakat' : naturalWajibZakat,
+                        'date' : _date,
 
+                      }).then((value){
+                        print(value.documentID);
+                        Firestore.instance.collection('zakat').document(value.documentID).updateData({
+                          'id' : value.documentID,
+                        });
+                      });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
@@ -269,6 +573,18 @@ class _plantationState extends State<plantation> {
                   },
                 ),
                 Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
+                Spacer(),
+                RaisedButton(
+                  onPressed: (){
+                    //getData(docID);
+                    /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return OpenList();
+                    }));*/
+                    _addDialogMachine();
+                  },
+                  child: Text('Open lists', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  color: Colors.green,
+                ),
               ],
             ),
             SizedBox(height: 20,),
@@ -350,8 +666,10 @@ class _plantationState extends State<plantation> {
                     machineZakatText = _zakatAmount.toString();
                     if(totWeight >= 652.8){
                       machineZakatText = _zakatAmount.toString();
+                      machineWajibZakat = true;
                     } else {
                       machineZakatText = 'No Zakat';
+                      machineWajibZakat = false;
                     }
 
                   });
@@ -380,7 +698,18 @@ class _plantationState extends State<plantation> {
                 SizedBox(width: 20,),
                 RaisedButton(
                   onPressed: () {
+                    Firestore.instance.collection('zakat').add({
+                      'type': 'Plantation 5%',
+                      'zakatAmount' : machineZakatText,
+                      'wajibZakat' : machineWajibZakat,
+                      'date' : _date,
 
+                    }).then((value){
+                      print(value.documentID);
+                      Firestore.instance.collection('zakat').document(value.documentID).updateData({
+                        'id' : value.documentID,
+                      });
+                    });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
@@ -409,6 +738,18 @@ class _plantationState extends State<plantation> {
                   },
                 ),
                 Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
+                Spacer(),
+                RaisedButton(
+                  onPressed: (){
+                    //getData(docID);
+                    /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return OpenList();
+                    }));*/
+                    _addDialogCost();
+                  },
+                  child: Text('Open lists', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  color: Colors.green,
+                ),
               ],
             ),
             SizedBox(height: 20,),
@@ -490,8 +831,10 @@ class _plantationState extends State<plantation> {
                     costZakatText = _zakatAmount.toString();
                     if(totWeight >= 652.8){
                       costZakatText = _zakatAmount.toString();
+                      costWajibZakat = true;
                     } else {
                       costZakatText = 'No Zakat';
+                      costWajibZakat = false;
                     }
                   });
                 },
@@ -519,7 +862,18 @@ class _plantationState extends State<plantation> {
                 SizedBox(width: 20,),
                 RaisedButton(
                   onPressed: () {
+                    Firestore.instance.collection('zakat').add({
+                      'type': 'Plantation 7.5%',
+                      'zakatAmount' : costZakatText,
+                      'wajibZakat' : costWajibZakat,
+                      'date' : _date,
 
+                    }).then((value){
+                      print(value.documentID);
+                      Firestore.instance.collection('zakat').document(value.documentID).updateData({
+                        'id' : value.documentID,
+                      });
+                    });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),

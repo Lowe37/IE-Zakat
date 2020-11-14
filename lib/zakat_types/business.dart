@@ -205,7 +205,6 @@ class _businessState extends State<business> {
 
   //select date
   DateTime _date = new DateTime.now();
-  TimeOfDay _time = new TimeOfDay.now();
 
   Future <Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(context: context, initialDate: _date, firstDate: new DateTime(2015), lastDate: new DateTime(2030));
