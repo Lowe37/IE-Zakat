@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:flutteriezakat/drawer.dart';
-import 'package:flutteriezakat/home.dart';
-import 'package:flutteriezakat/income_expense/balance.dart';
-import 'package:flutteriezakat/main.dart';
-import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:flutteriezakat/signin_and_registration/register_user.dart';
-import 'package:flutteriezakat/services/auth.dart';
 import 'package:flutteriezakat/shared/loading.dart';
-import 'package:flutteriezakat/sidebar/sidebar.dart';
 import 'package:flutteriezakat/signin_and_registration/reset_password.dart';
+import 'package:flutteriezakat/zakat_tracker/zakat_tracker_home.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:email_validator/email_validator.dart';
 
 void main () => runApp(MaterialApp(
   home: LoginPageTest(),
 ));
 
 class LoginPageTest extends StatefulWidget {
+
+  LoginPageTest({Key key}) : super(key: key);
 
   @override
   _LoginPageTestState createState() => _LoginPageTestState();
@@ -49,11 +44,14 @@ class _LoginPageTestState extends State<LoginPageTest> {
   Future loginCheck(BuildContext context) async {
     FirebaseUser user = await _auth.currentUser();
     if (user != null) {
-      print("Already singed-in with");
+      print("Already singed-in with " +user.email);
       /*Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => CustomDrawer(user)));*/
+      /*Navigator.push(
+          context, MaterialPageRoute(builder: (context) => receiveUserInfo(user)));
+    }*/
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => balance()));
+          context, MaterialPageRoute(builder: (context) => zakatTrackerHome()));
     }
   }
 
@@ -98,7 +96,7 @@ class _LoginPageTestState extends State<LoginPageTest> {
                   ),
                   SizedBox(height: 40,),
                   Center(child: GoogleSignInButton()),
-                  Center(child: FacebookSignInButton()),
+                  //Center(child: FacebookSignInButton()),
                   SizedBox(height: 30,),
                   Align(
                     alignment: Alignment.center,
@@ -180,20 +178,6 @@ class _LoginPageTestState extends State<LoginPageTest> {
     );
   }
 
-  /*Container PasswordTextField(){
-    return Container(
-      child: TextFormField(
-        obscureText: true,
-        decoration: InputDecoration(
-            labelText: 'Enter your password',
-            border: new OutlineInputBorder(
-              borderRadius: new BorderRadius.circular(16)
-            )
-        ),
-        controller: passwordController,
-      ),
-    );
-  }*/
 
   Container passwordTextField(){
     return Container(
@@ -218,7 +202,6 @@ class _LoginPageTestState extends State<LoginPageTest> {
     return Container(
       child: RaisedButton.icon(
         onPressed: () {
-
           googleSignIn(context);
         },
         icon: Image.asset(''),
@@ -243,7 +226,7 @@ class _LoginPageTestState extends State<LoginPageTest> {
     setState (() => loading = true);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => balance()),
+      MaterialPageRoute(builder: (context) => zakatTrackerHome()),
     );
   }
 
@@ -262,39 +245,14 @@ class _LoginPageTestState extends State<LoginPageTest> {
     );
   }
 
-
-  /*Widget  SignInButton(){
-    return InkWell(
-
-      child: Container(
-        constraints: BoxConstraints.expand(height: 50),
-        child: Text('Sign In',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
-        ),
-        margin: EdgeInsets.all(16),
-        padding: EdgeInsets.all(16),
-      ),
-      onTap: () {
-        SignIn();
-      },
-    );
-  }*/
-
 Future<FirebaseUser> signIn() async{
     final FirebaseUser user = await _auth.signInWithEmailAndPassword(
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
     ).then((user) {
       //print("Signed in with ${user.email}");
-      loginCheck(context);  // add here
+      loginCheck(context);  //
+      loading = true;// add here
     }).catchError((error) {
       print(error.message);
       scaffoldKey.currentState.showSnackBar(SnackBar(

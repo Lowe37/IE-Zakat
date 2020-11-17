@@ -69,15 +69,19 @@ class _SubCategoryClassState extends State<SubCategory> with SingleTickerProvide
                   child: Column(
                     children: [
                       Card(
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 10,),
-                            Text("Profit: "+doc[index].data['profit'].toString()),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            //Text(doc[index].data['cost'].toString()),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              SizedBox(height: 10,),
+                              Text("Profit: "+doc[index].data['profit'].toString()),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              //Text(doc[index].data['cost'].toString()),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -213,6 +217,11 @@ class _SubCategoryClassState extends State<SubCategory> with SingleTickerProvide
         Firestore.instance.collection('zakatTracker').document(widget.doc).collection('profitSub').add({
           'profit': double.parse(costOrProfitController.text),
           'date' : _date,
+        }).then((value){
+          print(value.documentID);
+          Firestore.instance.collection('zakatTracker').document(value.documentID).updateData({
+            'id' : value.documentID,
+          });
         });
       }
       break;
@@ -220,6 +229,12 @@ class _SubCategoryClassState extends State<SubCategory> with SingleTickerProvide
         Firestore.instance.collection('zakatTracker').document(widget.doc).collection('costSub').add({
           'cost': double.parse(costOrProfitController.text),
           'date' : _date,
+        }).then((value){
+          print(value.documentID);
+          Firestore.instance.
+          collection('costSub').
+          document(value.documentID).
+          setData({"id": value.documentID}, merge: true);
         });
       }
       break;

@@ -89,7 +89,7 @@ class _fitrahInfoState extends State<fitrahInfo> {
                     //setState (() => loading = true);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => fitrah()),
+                      MaterialPageRoute(builder: (context) => Fitrah()),
                     );
                   },
                   color: Colors.green,

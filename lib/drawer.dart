@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutteriezakat/FAQPage.dart';
+import 'package:flutteriezakat/ZakatInformation.dart';
+import 'package:flutteriezakat/ZakatStatistics.dart';
 import 'package:flutteriezakat/income_expense/balance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
 import 'package:flutteriezakat/zakat_tracker/zakat_tracker_home.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CustomDrawer extends StatefulWidget {
 
@@ -16,7 +20,28 @@ class CustomDrawer extends StatefulWidget {
 
 class _CustomDrawerState extends State<CustomDrawer> {
 
+  @override
+  void initState() {
+    setState(() {
+      retrieveEmail();
+    });
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /*void getCurrentUserEmail() async {
+    final user = await _auth.currentUser().then((value) => userEmail = value.email.toString());
+  }*/
+  String userEmail;
+  void retrieveEmail() async {
+    final FirebaseUser user = await _auth.currentUser();
+    final uEmail = user.email;
+    setState(() {
+      userEmail = uEmail.toString();
+      print(userEmail);
+    });
+    // here you write the codes to input the data into firestore
+  }
 
   void signOut(BuildContext context){
     _auth.signOut();
@@ -35,30 +60,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-                color:  Colors.indigo
+                color:  Colors.cyan
             ),
-            child: Text('test', style: TextStyle(color: Colors.white, fontSize: 20),),
+            child: Text(userEmail??'Could not display email', style: TextStyle(color: Colors.white, fontSize: 20),),
           ),
           ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
-            onTap: (){
-              Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => balance()
-              ));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.pie_chart),
-            title: Text('Statistics'),
-            onTap: (){
-              Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => balance()
-              ));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.monochrome_photos),
+            leading: Icon(MdiIcons.checkBold),
             title: Text('Zakat Tracker'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(
@@ -67,7 +74,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.monetization_on),
+            leading: Icon(MdiIcons.bookOpenVariant),
+            title: Text('Statistics'),
+            onTap: (){
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) => ZakatStatistics()
+              ));
+            },
+          ),
+          ListTile(
+            leading: Icon(MdiIcons.calculator),
             title: Text('Zakat Calculator'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(
@@ -76,18 +92,32 @@ class _CustomDrawerState extends State<CustomDrawer> {
             },
           ),
           ListTile(
+            leading: Icon(MdiIcons.bookOpenVariant),
+            title: Text('Zakat Information'),
+            onTap: (){
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) => ZakatInformation()
+              ));
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.question_answer),
             title: Text('FAQ'),
+            onTap: (){
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) => FAQPage()
+              ));
+            },
           ),
           ListTile(
             onTap: (){
               showAboutDialog(
                 context: context,
                 applicationVersion: '1.0.1',
-                applicationLegalese: 'testttt',
+                applicationLegalese: 'Money Tracker for Zakat Calcualtion',
               );
             },
-            leading: Icon(Icons.question_answer),
+            leading: Icon(MdiIcons.informationOutline),
             title: Text('About Money Tracker'),
           ),
           SizedBox(height: 140,),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutteriezakat/drawer.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
@@ -21,11 +22,6 @@ extension ListUtils<T> on List<T> {
 
 class zakatTrackerHome extends StatefulWidget {
 
-  /*final Widget body;
-  balance({this.body});*/
-  /*final FirebaseUser user;
-  balance(this.user, {Key key}) : super(key: key);*/
-
   @override
   _zakatTrackerHomeState createState() => _zakatTrackerHomeState();
 }
@@ -36,9 +32,11 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
   final costOrProfitController = new TextEditingController();
   final profitController = new TextEditingController();
   final costController = new TextEditingController();
+  final noteController = new TextEditingController();
 
   @override
   void dispose() {
+    noteController.dispose();
     nameController.dispose();
     costOrProfitController.dispose();
     profitController.dispose();
@@ -52,32 +50,39 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    inputData();
+
     controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: 450));
     scaleAnimation =
         CurvedAnimation(parent: controller, curve: Curves.elasticInOut);
-
     controller.addListener(() {
       setState(() {});
     });
-
     controller.forward();
   }
 
-  void signOut(BuildContext context){
-    FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPageTest()),
-      ModalRoute.withName('/'),
-    );
+  String userID;
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void inputData() async {
+    final FirebaseUser user = await auth.currentUser();
+    final uid = user.uid;
+    userID = uid;
+    print(userID);
+    // here you write the codes to input the data into firestore
   }
 
   String typeText;
+  String categoryText;
 
   void addZakatTracker() async {
     Firestore.instance.collection('zakatTracker').add({
-      'name': nameController.text,
+      'userID' : userID,
+      'amount': nameController.text,
+      'note' : noteController.text,
+      'category' : categoryText,
       'type' : typeText,
       'date' : _date,
 
@@ -106,9 +111,6 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
           totalValue = total;
           print(totalValue);
         });
-        /*Firestore.instance.collection('zakatTracker').document(docID).updateData({
-          'profit' : totalValue,
-        });*/
       }
       break;
       case 'Cost': {
@@ -128,88 +130,8 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
         .delete();
   }
 
-  Future<void> _deleteDialog(docID) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return Material(
-          color: Colors.transparent,
-          child: ScaleTransition(
-            scale: scaleAnimation,
-            child: AlertDialog(
-              title: Text('Add information'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    DropDown(
-                      items: ["Profit", "Cost"],
-                      hint: Text('Select type'),
-                      isExpanded: true,
-                      onChanged: (val){
-                        costOrProfit = val.toString();
-                        print(costOrProfit);
-                      },
-                    ),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      controller: costOrProfitController,
-                      decoration: InputDecoration(
-                        //errorText: errorValidate ? 'List name is required' : null,
-                          border: new OutlineInputBorder(
-                            borderRadius: new BorderRadius.circular(10),
-                          ),
-                          hintText: 'Amount'
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18)
-                        ),
-                        onPressed: (){
-                          deleteList(docID);
-                          Navigator.of(context).pop();
-                        },
-                        color: Colors.red,
-                        child: Text('Delete list', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18)
-                  ),
-                  child: Text('Cancel', style: TextStyle(color: Colors.grey),),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    costOrProfitController.clear();
-                  },
-                ),
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18)
-                  ),
-                  child: Text('Update',style: TextStyle(fontWeight: FontWeight.bold),),
-                  onPressed: () {
-                    addCostOrProfit(docID);
-                    Navigator.of(context).pop();
-                    costOrProfitController.clear();
-                  },
-                  color: Colors.green,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  bool _validateAmount = false;
+  bool _validateNote = false;
 
   Future<void> _addDialog() async {
     return showDialog<void>(
@@ -225,29 +147,60 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Text('List name', style: TextStyle(fontWeight: FontWeight.w400),),
+                    Text('Amount', style: TextStyle(fontWeight: FontWeight.w400),),
                     SizedBox(height: 10,),
                     TextField(
+                      keyboardType: TextInputType.number,
                       controller: nameController,
                       decoration: InputDecoration(
-                        //errorText: errorValidate ? 'List name is required' : null,
+                        errorText: _validateAmount ? 'Amount is required' : null,
                           border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(10),
                           ),
-                          hintText: 'Enter name'
+                          hintText: '0'
                       ),
                     ),
                     SizedBox(height: 20,),
-                    Text('Zakat category', style: TextStyle(fontWeight: FontWeight.w400),),
+                    Text('Note', style: TextStyle(fontWeight: FontWeight.w400),),
+                    SizedBox(height: 10,),
+                    TextField(
+                      controller: noteController,
+                      decoration: InputDecoration(
+                          errorText: _validateNote ? 'Note is required' : null,
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(10),
+                          ),
+                          hintText: 'Note'
+                      ),
+                    ),
+                    SizedBox(height: 20,),
+                    Text('Category', style: TextStyle(fontWeight: FontWeight.w400),),
                     DropDown(
                       items: ["Business", "Income", "Savings", "Plantation"],
                       hint: Text('Select category'),
+                      isExpanded: true,
+                      onChanged: (val) {
+                        categoryText = val.toString();
+                      }
+                    ),
+                    SizedBox(height: 20,),
+                    Text('Instruction'),
+                    SizedBox(height: 10,),
+                    Text('- Please select type Expense only for category Plantation.', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),),
+                    SizedBox(height: 5,),
+                    Text('- Please select type Income only for category Savings.', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),),
+                    SizedBox(height: 20,),
+                    Text('Type', style: TextStyle(fontWeight: FontWeight.w400),),
+                    DropDown(
+                      items: ["Expense", "Income"],
+                      hint: Text('Select type'),
                       isExpanded: true,
                       onChanged: (val){
                         typeText = val.toString();
                         print(typeText);
                       },
                     ),
+                    SizedBox(height: 20,),
                   ],
                 ),
               ),
@@ -265,17 +218,23 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
                   },
                 ),
                 RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18)
-                  ),
-                  child: Text('Add',style: TextStyle(fontWeight: FontWeight.bold),),
                   onPressed: () {
+                    setState(() {
+                      nameController.text.isEmpty ? _validateAmount = true : null;
+                      noteController.text.isEmpty ?  _validateNote = true : null;
+                    });
                     addZakatTracker();
+                    inputData();
                     Navigator.of(context).pop();
                     nameController.clear();
                     profitController.clear();
                     costController.clear();
+                    noteController.clear();
                   },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  child: Text('Add',style: TextStyle(fontWeight: FontWeight.bold),),
                   color: Colors.green,
                 ),
               ],
@@ -286,42 +245,110 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
     );
   }
 
+  final f = new DateFormat('yyyy-MM-dd');
+
+  List<DataRow> _createRows(QuerySnapshot snapshot) {
+    List<DataRow> newList = snapshot.documents.map((DocumentSnapshot documentSnapshot) {
+      /*return new DataRow(cells: _createCellsForElement(documentSnapshot["amount"]));*/
+      return new DataRow(cells: [
+        DataCell(Text(documentSnapshot.data['category'].toString())),
+        DataCell(Text(documentSnapshot.data['amount'].toString())),
+        DataCell(Text(documentSnapshot.data['type'].toString())),
+        DataCell(Text(f.format(documentSnapshot.data['date'].toDate()))),
+      ]);
+    }).toList();
+    return newList;
+  }
+
+  void deleteExpense(docID) async {
+    Firestore.instance.collection('zakatTracker')
+        .document(docID)
+        .delete();
+  }
+
+  Future<void> _deleteDialogExpense(docID) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete record ?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Delete'),
+              onPressed: () {
+                deleteExpense(docID);
+                setState(() {
+                });
+                Navigator.of(context).pop();
+              },
+              color: Colors.red,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  Function mathFunc = (Match match) => '${match[1]},';
+
   List <Widget> zakatTrackerList (AsyncSnapshot snapshot){
     return snapshot.data.documents.map<Widget>((document){
       return Container(
-        padding: EdgeInsets.fromLTRB(10,3,3,3),
+        height: 150,
+        width: 700,
+        padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
         margin: EdgeInsets.all(3),
         decoration: BoxDecoration(
-            color: Colors.black12,
+            border: Border.all(color: Colors.cyan, width: 2),
             borderRadius: BorderRadius.circular(10)
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(document['name']),
-            SizedBox(width: 5,),
-            Text(document['type']),
-            SizedBox(width: 5,),
-            SizedBox(
-              height: 35,
-              width: 35,
-              child: IconButton(
-                icon: Icon(MdiIcons.dotsVertical),
-                //iconSize: 20,
-                onPressed: (){
-                  //print(totalExpense);
-                  _deleteDialog(document['id']);
-                  //readData(document['id']);
-                },
-              ),
+            Row(
+              children: [
+                Text(document['category'], style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 25),),
+                Spacer(),
+                Text(DateFormat("dd/MM/yyyy").format(document['date'].toDate())),
+              ],
+            ),
+            SizedBox(height: 10,),
+            Text('Amount: '+document['amount'].toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 15),),
+            SizedBox(height: 10,),
+            Text('Type: '+document['type'].toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 15),),
+            SizedBox(height: 10,),
+            Row(
+              children: [
+                Text('Note: '+document['note'], style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 15),),
+                Spacer(),
+                InkWell(
+                  child: Icon(MdiIcons.deleteOutline),
+                  onTap: (){
+                    _deleteDialogExpense(document['id']);
+                  },
+                ),
+              ],
             ),
           ],
         ),
       );
     }).toList();
   }
-
-  bool errorValidate = true;
 
   @override
   Widget build(BuildContext context) {
@@ -331,47 +358,53 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
         title: Text('Zakat Tracker'),
       ),
       drawer: CustomDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('zakatTracker').snapshots(),
-          builder: (context, snapshot) {
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10,),
+              Text('Your records:', style: TextStyle(fontFamily: 'Nunito'), ),
+              SizedBox(height: 10,),
+              StreamBuilder(
+                stream: Firestore.instance.collection('zakatTracker').where('userID', isEqualTo: userID).snapshots(),
+                builder: (context, snapshot){
+                  if(snapshot == null) return
+                    Center(child: Text("Your records are empty\nPress '+' to add records.",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
+                  return Column(
+                    children: zakatTrackerList(snapshot),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      /*Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: StreamBuilder(
+          stream: Firestore.instance.collection('zakatTracker').where('userID', isEqualTo: userID).snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasData) {
-              var doc = snapshot.data.documents;
-              return new ListView.builder(
-                  itemCount: doc.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: (){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SubCategory(doc[index].documentID)),
-                          );
-                        },
-                        child: Card(
-                          child: Column(
-                            children: <Widget>[
-                              Text('Name: '+doc[index].data['name']),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                              Text('Type: '+doc[index].data['type']),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  });
-            } else {
+              return new DataTable(
+                columnSpacing: 20,
+                columns: [
+                  DataColumn(label: Text('Category')),
+                  DataColumn(label: Text('Amount')),
+                  DataColumn(label: Text('Type')),
+                  DataColumn(label: Text('Date')),
+                ],
+                rows: _createRows(snapshot.data),
+              );
+                  } else {
               return LinearProgressIndicator();
             }
           },
         ),
-      ),
+      ),*/
       floatingActionButton: FloatingActionButton(
         onPressed: () {
       _addDialog();

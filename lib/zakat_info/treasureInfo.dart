@@ -7,7 +7,7 @@ import 'package:flutteriezakat/localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutteriezakat/zakat_types/business.dart';
 import 'package:flutteriezakat/zakat_types/income.dart';
-import 'package:flutteriezakat/zakat_types/shares.dart';
+import 'package:flutteriezakat/zakat_types/savings.dart';
 import 'package:flutteriezakat/zakat_types/treasure.dart';
 
 void main () => runApp(MaterialApp(

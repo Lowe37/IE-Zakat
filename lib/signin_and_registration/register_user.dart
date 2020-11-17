@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:flutteriezakat/database.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:flutteriezakat/main.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:flutteriezakat/services/auth.dart';
 import 'package:flutteriezakat/shared/loading.dart';
 import 'package:flutteriezakat/sign_in.dart';
-import 'package:flutteriezakat/user_profile.dart';
+import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
 
 void main () => runApp(MaterialApp(
   home: registerPage(),
@@ -104,7 +101,7 @@ class _registerPageState extends State<registerPage> {
                     InkWell(
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return LoginPage();
+                          return LoginPageTest();
                         }));
                       },
                       child: Text('Sign In', style: TextStyle(
@@ -133,6 +130,10 @@ class _registerPageState extends State<registerPage> {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
+
+    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+    print(emailValid);
+
     if(password == confirmPassword && password.length >= 6){
       _auth2
       .createUserWithEmailAndPassword(email: email, password: password)
@@ -146,6 +147,15 @@ class _registerPageState extends State<registerPage> {
           MaterialPageRoute(builder: (context) => MyHomePage()),
         );
       }).catchError((error){
+        /*if(error == PlatformException){
+          if(error.code == 'ERROR_EMAIL_ALREADY_IN_USE') {
+            /// `foo@bar.com` has alread been registered.
+          }
+        }*/
+        scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(error.message, style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.red,
+        ));
         print(error.message);
 
       });

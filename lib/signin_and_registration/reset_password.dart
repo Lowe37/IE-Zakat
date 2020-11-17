@@ -73,21 +73,6 @@ class _resetPasswordPageState extends State<resetPasswordPage> {
                       onPressed: (){
                         resetPassword();
                       },
-                      /*onPressed: () async {
-                      if(_formKey.currentState.validate()){
-                        setState (() => loading = true);
-                        dynamic result = await _auth.registerWithEmailAndPassword(name, email, password, confirmpassword);
-                        /*Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage()),
-                        );*/
-                        if(result is PlatformException){
-                          if(result.code == 'ERROR_EMAIL_ALREADY_IN_USE')
-                          setState (() => error = 'Please enter a valid email');
-                          loading = false;
-                        }
-                      }
-                    },*/
                     ),
                   ),
                   SizedBox(height: 40,),
@@ -131,31 +116,6 @@ class _resetPasswordPageState extends State<resetPasswordPage> {
       style: TextStyle(color: Colors.white),),
       backgroundColor: Colors.green,
     ));
-  }
-
-  signUp(){
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
-    if(password == confirmPassword && password.length >= 6){
-      _auth2
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((user){
-        print('registered successfully');
-        setState(() {
-          loading = true;
-        });
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyHomePage()),
-        );
-      }).catchError((error){
-        print(error.message);
-
-      });
-    } else {
-      print('Fail to confirm password');
-    }
   }
 
   Container emailTextField(){

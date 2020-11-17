@@ -7,7 +7,7 @@ import 'package:flutteriezakat/localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutteriezakat/zakat_types/business.dart';
 import 'package:flutteriezakat/zakat_types/income.dart';
-import 'package:flutteriezakat/zakat_types/shares.dart';
+import 'package:flutteriezakat/zakat_types/savings.dart';
 
 void main () => runApp(MaterialApp(
 ));
@@ -82,7 +82,7 @@ class _sharesInfoState extends State<sharesInfo> {
                     //setState (() => loading = true);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => shares()),
+                      MaterialPageRoute(builder: (context) => Savings()),
                     );
                   },
                   color: Colors.green,

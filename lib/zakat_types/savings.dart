@@ -7,14 +7,14 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class income extends StatefulWidget {
+class Savings extends StatefulWidget {
   //business({Key key}) : super(key: key);
 
   @override
-  _incomeState createState() => _incomeState();
+  _SavingsState createState() => _SavingsState();
 }
 
-class _incomeState extends State<income> {
+class _SavingsState extends State<Savings> {
 
   RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
   Function mathFunc = (Match match) => '${match[1]},';
@@ -113,7 +113,7 @@ class _incomeState extends State<income> {
 
   void retrieveIncome (){
     double total = 0.0;
-    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Income').where('category', isEqualTo: 'Income').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
+    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Income').where('category', isEqualTo: 'Savings').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
       querySnapshot.documents.forEach((result) {
         print(result.documentID);
         newValueIncome = double.parse(result.data['amount'].toString());
@@ -141,7 +141,7 @@ class _incomeState extends State<income> {
 
   void addBusinessRecord () async {
     Firestore.instance.collection('zakat').add({
-      'category': 'Income',
+      'category': 'Savings',
       'zakatAmount' : smallBusinessZakatText,
       'wajibZakat' : wajibZakat,
       'date' : _date,
@@ -225,7 +225,7 @@ class _incomeState extends State<income> {
               keyboardType: TextInputType.number,
               controller: annualCostController,
               decoration: InputDecoration(
-                errorText: _validateCost? 'Enter income value': null,
+                  errorText: _validateCost? 'Enter income value': null,
                   border: new OutlineInputBorder(
                     borderRadius: new BorderRadius.circular(10),
                   ),
@@ -303,7 +303,7 @@ class _incomeState extends State<income> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,
-        title: Text('Income'),
+        title: Text('Savings'),
       ),
       body: smallBusiness(),
     );

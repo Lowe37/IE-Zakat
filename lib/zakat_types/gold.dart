@@ -35,16 +35,16 @@ class _goldState extends State<gold> {
   //add gold api
   Future<String> goldAndSilverCalculation() async {
     http.Response response = await http.get(
-        Uri.encodeFull("http://www.thaigold.info/RealTimeDataV2/gtdata_.txt"),
+        Uri.encodeFull("https://thai-gold-api.herokuapp.com/latest"),
         headers: {
           "Accept": "application/json"
         }
     );
 
     List data = json.decode(response.body);
-    //print(data[4]["ask"]);
+    print(data[5]["buy"]);
     var goldPrice = double.parse(data[4]["ask"]);
-    print(goldPrice);
+    //print(goldPrice);
     double eligiblePrice = goldPrice*5.58;
 
     if(netTotal < eligiblePrice){
@@ -210,7 +210,7 @@ class _goldState extends State<gold> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.cyan,
-          title: Text('Gold and Silver'),
+          title: Text('Gold'),
         ),
         body: goldAndSilverPage(),
       ),
