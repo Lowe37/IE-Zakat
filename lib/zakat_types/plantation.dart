@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropdown/flutter_dropdown.dart';
+import 'package:flutteriezakat/pages/homepage.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +24,6 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     inputData();
-    retrieveExpense();
     //natural water 10%
     naturalNetProfit = '0';
     naturalZakatText = '0';
@@ -129,10 +129,10 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
           naturalZakatText = _zakatAmount.toString();
           naturalWajibZakat = true;
           if(_zakatAmount < 0){
-            naturalZakatText = 'No Zakat';
+            naturalZakatText = '0';
           }
         } else {
-          naturalZakatText = 'No Zakat';
+          naturalZakatText = '0';
           naturalWajibZakat = false;
         }
       }
@@ -186,11 +186,18 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
   String naturalNetProfit;
   bool naturalWajibZakat = false; //condition to pay zakat or not
   String percentageText;
+  bool _validateCost = false;
+  bool _validateWeight = false;
+  bool _validatePrice= false;
+
+  RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  Function mathFunc = (Match match) => '${match[1]},';
 
   Widget naturalWater(){
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(10),
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -224,6 +231,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
               keyboardType: TextInputType.number,
               controller: totWeightController,
               decoration: InputDecoration(
+                  errorText: _validateWeight? 'Enter weight': null,
                   border: new OutlineInputBorder(
                     borderRadius: new BorderRadius.circular(10),
                   ),
@@ -237,6 +245,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
               keyboardType: TextInputType.number,
               controller: yieldPerKgController,
               decoration: InputDecoration(
+                  errorText: _validatePrice? 'Enter price': null,
                   border: new OutlineInputBorder(
                     borderRadius: new BorderRadius.circular(10),
                   ),
@@ -250,6 +259,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
               keyboardType: TextInputType.number,
               controller: totCostController,
               decoration: InputDecoration(
+                  errorText: _validateCost? 'Enter expense value': null,
                   border: new OutlineInputBorder(
                     borderRadius: new BorderRadius.circular(10),
                   ),
@@ -267,15 +277,23 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                   percentageText = val.toString();
                 }
             ),
-            SizedBox(height: 20,),
-            Text('Net profit', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$naturalNetProfit', style: TextStyle(
+
+            Divider(
+              height: 20,
+              thickness: 2,
+              color: Colors.cyan,
+            ),
+
+            SizedBox(height: 10,),
+            Text('Net Profit', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            Text(naturalNetProfit.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
             SizedBox(height: 20,),
             Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$naturalZakatText', style: TextStyle(
+            Text(naturalZakatText.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
             SizedBox(height: 20,),
             Row(
@@ -298,7 +316,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                   color: Colors.red,
                   child: Text('Reset', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(width: 10,),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
@@ -306,23 +324,24 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                   onPressed: () {
                     setState(() {
                       calculateButton();
+                      totWeightController.text.isEmpty ? _validateWeight = true : _validateWeight = false;
+                      yieldPerKgController.text.isEmpty ? _validatePrice = true : _validatePrice = false;
+                      totCostController.text.isEmpty ? _validateCost = true : _validateCost = false;
                     });
                   },
                   color: Colors.green,
                   child: Text('Calculate now', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 10),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
                   ),
                   onPressed: () {
                     addPlantationRecord();
-                    final snackbar =
-                    SnackBar(
-                      content: Text('Your Zakat record has been added.'),
-                    );
-                    Scaffold.of(context).showSnackBar(snackbar);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                      return MyHomePage();
+                    }));
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
@@ -337,6 +356,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    retrieveExpense();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,

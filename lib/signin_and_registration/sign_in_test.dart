@@ -6,6 +6,7 @@ import 'package:flutteriezakat/signin_and_registration/reset_password.dart';
 import 'package:flutteriezakat/zakat_tracker/zakat_tracker_home.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutteriezakat/pages/homepage.dart';
 
 void main () => runApp(MaterialApp(
   home: LoginPageTest(),
@@ -20,6 +21,14 @@ class LoginPageTest extends StatefulWidget {
 }
 
 class _LoginPageTestState extends State<LoginPageTest> {
+
+  bool _showHidePassword = true;
+
+  void toggleShowHidePassword (){
+    setState(() {
+      _showHidePassword = !_showHidePassword;
+    });
+  }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
@@ -51,7 +60,7 @@ class _LoginPageTestState extends State<LoginPageTest> {
           context, MaterialPageRoute(builder: (context) => receiveUserInfo(user)));
     }*/
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => zakatTrackerHome()));
+          context, MaterialPageRoute(builder: (context) => MyHomePage()));
     }
   }
 
@@ -65,73 +74,84 @@ class _LoginPageTestState extends State<LoginPageTest> {
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 80),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Text("Sign In", style: TextStyle(color:Colors.grey, fontFamily: 'Nunito-Regular', fontWeight: FontWeight.w200, fontSize: 30),),
+                  SizedBox(height: 60),
+                  Container(
+                    height: 120.0,
+                    width: 120.0,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(
+                            'assets/logo.png'),
+                        fit: BoxFit.fill,
+                      ),
+                      //shape: BoxShape.circle,
+                    ),
                   ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: 30),
+                  Text('Money Tracker', style: TextStyle(
+                    fontFamily: 'Blippo',
+                    fontWeight: FontWeight.normal,
+                    fontSize: 40,
+                    color: Colors.indigo
+                  ),),
+                  SizedBox(height: 20,),
                   emailTextField(),
                   SizedBox(height: 20,),
                   passwordTextField(),
                   SizedBox(height: 30,),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(width: 5,),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) {
-                            return resetPasswordPage();
-                          }));
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)
+                        ),
+                        color: Colors.teal,
+                        child: Text(
+                          'Sign in',
+                          style: TextStyle(color: Colors.white, fontFamily: 'Nunito', ),
+                        ),
+                        onPressed: () {
+                          signIn();
                         },
-                        child: Text('Forgot Password ?', style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold
-                        ),),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 40,),
-                  Center(child: GoogleSignInButton()),
-                  //Center(child: FacebookSignInButton()),
-                  SizedBox(height: 30,),
-                  Align(
-                    alignment: Alignment.center,
-                    child: RaisedButton(
-                      color: Colors.white,
-                      child: Text(
-                        'Sign in',
-                        style: TextStyle(color: Colors.green,),
                       ),
-                      onPressed: () {
-                        signIn();
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Do not have an account ?',
-                      ),
-                      SizedBox(width: 5,),
-                      InkWell(
-                        onTap: () {
+                      //SizedBox(width: 30,),
+                      RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)
+                        ),
+                        color: Colors.amber,
+                        child: Text(
+                          'Register',
+                          style: TextStyle(color: Colors.white, fontFamily: 'Nunito', ),
+                        ),
+                        onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return registerPage();
                           }));
                         },
-                        child: Text('Register', style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold
-                        ),),
                       )
                     ],
                   ),
+                  SizedBox(height: 20,),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return resetPasswordPage();
+                      }));
+                    },
+                    child: Text('Forgot Password ?', style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                    ),
+                  ),
+                  SizedBox(height: 40,),
+                  Center(child: GoogleSignInButton()),
+                  SizedBox(height: 20,),
                   Text(
                     error,
                     style: TextStyle(color: Colors.red, fontSize: 16),
@@ -178,37 +198,52 @@ class _LoginPageTestState extends State<LoginPageTest> {
     );
   }
 
-
   Container passwordTextField(){
     return Container(
-      child: TextFormField(
-        controller: passwordController,
-        validator: (val) => val.length < 6 ? 'Enter a password with more than 6 characters' : null,
-        onChanged: (val) {
-          setState(() => password = val);
-        },
-        obscureText: true,
-        decoration: InputDecoration(
-            labelText: 'Password',
-            border: new OutlineInputBorder(
-                borderRadius: new BorderRadius.circular(16)
-            )
-        ),
+      child: Column(
+        children: [
+          TextFormField(
+            controller: passwordController,
+            validator: (val) => val.length < 6 ? 'Enter a password with more than 6 characters' : null,
+            onChanged: (val) {
+              setState(() => password = val);
+            },
+            obscureText: _showHidePassword,
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                onPressed: (){
+                  setState(() {
+                    _showHidePassword = !_showHidePassword;
+                  });
+                },
+                icon: Icon(
+                  _showHidePassword ? Icons.visibility_off : Icons.visibility,
+                ),
+              ),
+                labelText: 'Password',
+                border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(16)
+                )
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Container GoogleSignInButton(){
     return Container(
-      child: RaisedButton.icon(
+      child: RaisedButton(
         onPressed: () {
           googleSignIn(context);
         },
-        icon: Image.asset(''),
+        //icon: Image.asset(''),
         textColor: Colors.white,
         color: Colors.red,
-        label: Text('Continue with Google'),
-        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Text('Continue with Google'),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18)
+        ),
       ),
     );
   }
@@ -226,7 +261,7 @@ class _LoginPageTestState extends State<LoginPageTest> {
     setState (() => loading = true);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => zakatTrackerHome()),
+      MaterialPageRoute(builder: (context) => MyHomePage()),
     );
   }
 

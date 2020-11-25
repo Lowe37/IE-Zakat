@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutteriezakat/FAQPage.dart';
+import 'package:flutteriezakat/HowToUse.dart';
 import 'package:flutteriezakat/ZakatInformation.dart';
-import 'package:flutteriezakat/ZakatStatistics.dart';
+import 'package:flutteriezakat/ZakatStats/ZakatStatPage.dart';
+import 'package:flutteriezakat/ZakatStats/ZakatStatistics.dart';
 import 'package:flutteriezakat/income_expense/balance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
@@ -58,18 +60,30 @@ class _CustomDrawerState extends State<CustomDrawer> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-                color:  Colors.cyan
+          Container(
+            height: 80,
+            child: DrawerHeader(
+              decoration: BoxDecoration(
+                  color:  Colors.teal,
+              ),
+              child: Text('Email: '+userEmail??'Could not display email', style: TextStyle(color: Colors.white, fontSize: 20),),
             ),
-            child: Text(userEmail??'Could not display email', style: TextStyle(color: Colors.white, fontSize: 20),),
           ),
-          ListTile(
+          /*ListTile(
             leading: Icon(MdiIcons.checkBold),
             title: Text('Zakat Tracker'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(
                   builder: (context) => zakatTrackerHome()
+              ));
+            },
+          ),*/
+          ListTile(
+            leading: Icon(MdiIcons.calculator),
+            title: Text('Zakat Calculator'),
+            onTap: (){
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) => MyHomePage()
               ));
             },
           ),
@@ -83,20 +97,20 @@ class _CustomDrawerState extends State<CustomDrawer> {
             },
           ),
           ListTile(
-            leading: Icon(MdiIcons.calculator),
-            title: Text('Zakat Calculator'),
-            onTap: (){
-              Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => MyHomePage()
-              ));
-            },
-          ),
-          ListTile(
             leading: Icon(MdiIcons.bookOpenVariant),
             title: Text('Zakat Information'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(
                   builder: (context) => ZakatInformation()
+              ));
+            },
+          ),
+          ListTile(
+            leading: Icon(MdiIcons.helpCircleOutline),
+            title: Text('How to use'),
+            onTap: (){
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) => HowToUsePage()
               ));
             },
           ),
@@ -120,7 +134,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             leading: Icon(MdiIcons.informationOutline),
             title: Text('About Money Tracker'),
           ),
-          SizedBox(height: 140,),
+          SizedBox(height: 260,),
           ListTile(
             leading: Icon(Icons.clear),
             title: Text('Sign out'),

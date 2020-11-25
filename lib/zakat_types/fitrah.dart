@@ -112,6 +112,7 @@ class _FitrahState extends State<Fitrah> {
   Widget smallBusiness(){
     return Container(
       padding: EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,12 +159,18 @@ class _FitrahState extends State<Fitrah> {
               ),
             ),
             SizedBox(height: 20,),
+
+            Divider(
+              height: 20,
+              thickness: 2,
+              color: Colors.cyan,
+            ),
+
+            SizedBox(height: 10,),
             Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$zakatAmount', style: TextStyle(
+            Text(zakatAmount.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
-
-            SizedBox(height: 30,),
             SizedBox(height: 20,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +190,7 @@ class _FitrahState extends State<Fitrah> {
                   color: Colors.red,
                   child: Text('Reset', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(width: 10,),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
@@ -198,7 +205,7 @@ class _FitrahState extends State<Fitrah> {
                   color: Colors.green,
                   child: Text('Calculate now', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                /*SizedBox(width: 10,),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
@@ -208,7 +215,7 @@ class _FitrahState extends State<Fitrah> {
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
-                ),
+                ),*/
               ],
             )
           ],

@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_dropdown/flutter_dropdown.dart';
+import 'package:flushbar/flushbar.dart';
 
 extension ListUtils<T> on List<T> {
   num sumBy(num f(T element)) {
@@ -62,8 +63,17 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
     controller.forward();
   }
 
-  String userID;
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        Text("Your record has been saved."),
+        Spacer(),
+        Icon(MdiIcons.checkCircle, color: Colors.green,),
+      ],
+    ),
+  );
 
+  String userID;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   void inputData() async {
@@ -163,6 +173,13 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                 setState(() {
                 });
                 Navigator.of(context).pop();
+                Flushbar(
+                  icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                  margin: EdgeInsets.all(8),
+                  borderRadius: 8,
+                  message:  "Your Zakat record has been deleted.",
+                  duration:  Duration(seconds: 3),
+                )..show(context);
               },
               color: Colors.red,
             ),
@@ -222,7 +239,7 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.cyan,
-          title: Text('Zakat Tracker'),
+          title: Text('Summary'),
         ),
         //drawer: CustomDrawer(),
         body: SingleChildScrollView(

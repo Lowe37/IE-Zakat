@@ -59,10 +59,10 @@ class _ZakatInformationState extends State<ZakatInformation> {
               SizedBox(height: 10,),
               Text('1. Nisab of 5.58 Baht of gold.\n2. Haul of 1 year.\n3. Rate of 2.5%.'),
 
-              SizedBox(height: 30,),
+              /*SizedBox(height: 30,),
               Text('Gold', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200,fontFamily: 'Nunito', color: Colors.cyan,)),
               SizedBox(height: 10,),
-              Text('1. Nisab of 5.58 Baht of gold.\n2. 1 year duration.\n3. Rate of 2.5%.'),
+              Text('1. Nisab of 5.58 Baht of gold.\n2. 1 year duration.\n3. Rate of 2.5%.'),*/
 
               SizedBox(height: 30,),
               Text('Income', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200,fontFamily: 'Nunito', color: Colors.cyan,)),
@@ -77,7 +77,7 @@ class _ZakatInformationState extends State<ZakatInformation> {
               SizedBox(height: 30,),
               Text('Treasure', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200,fontFamily: 'Nunito', color: Colors.cyan,)),
               SizedBox(height: 10,),
-              Text('1. No Nisab.\n2. Pay Zakat immediately when found.\n3. Rate of 20% for buried treasure. Rate of 2.5% for valuable treasure.'),
+              Text('1. No Nisab.\n2. Pay Zakat immediately when found.\n3. Rate of 20% for buried treasure (not lost treasure). Rate of 2.5% for valuable treasure.'),
 
               SizedBox(height: 30,),
               Text('Plantation', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200,fontFamily: 'Nunito', color: Colors.cyan,)),

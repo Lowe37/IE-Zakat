@@ -1,20 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dropdown/flutter_dropdown.dart';
 import 'package:flutteriezakat/block/navigation_bloc.dart';
 import 'package:flutteriezakat/drawer.dart';
 import 'package:flutteriezakat/goldprice.dart';
 import 'package:flutteriezakat/income_expense/balance.dart';
+import 'package:flutteriezakat/pages/AddZakat.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
-import 'package:flutteriezakat/zakat_info/businessInfo.dart';
-import 'package:flutteriezakat/zakat_info/fitrahInfo.dart';
-import 'package:flutteriezakat/zakat_info/goldInfo.dart';
-import 'package:flutteriezakat/zakat_info/incomeInfo.dart';
-import 'package:flutteriezakat/zakat_info/livestockInfo.dart';
-import 'package:flutteriezakat/zakat_info/plantationInfo.dart';
-import 'package:flutteriezakat/zakat_info/sharesInfo.dart';
 import 'package:flutteriezakat/shared/loading.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutteriezakat/database.dart';
-import 'package:flutteriezakat/zakat_info/treasureInfo.dart';
 import 'package:flutteriezakat/zakat_records/view_zakat_list.dart';
 import 'package:flutteriezakat/zakat_types/business.dart';
 import 'package:flutteriezakat/zakat_types/fitrah.dart';
@@ -55,112 +48,191 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    inputData();
+    totCost = 0;
+  }
+
+  String userID;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void inputData() async {
+    final FirebaseUser user = await auth.currentUser();
+    final uid = user.uid;
+    userID = uid;
+    print(userID);
+    // here you write the codes to input the data into firestore
+  }
+
+  double totCost;
+  double newValueZakatAmount;
+
+  void retrieveZakatAmount (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueZakatAmount = double.parse(result.data['zakatAmount'].toString());
+        print(newValueZakatAmount);
+        total += newValueZakatAmount;
+        //print(result.data['profit']);
+      });
+      totCost = total;
+    });
+  }
 
   var selected = 'BURGER';
   bool loading = false;
 
-  void signOut(BuildContext context){
-    _auth.signOut();
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPageTest()),
-        ModalRoute.withName('/'),
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        Text("Your record has been saved."),
+        Spacer(),
+        Icon(MdiIcons.checkCircle, color: Colors.green,),
+      ],
+    ),
+  );
+
+  void deleteZakatTrackerDocuments() async {
+    Firestore.instance.collection('zakatTracker').where('userID', isEqualTo: userID).getDocuments().then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents){
+        ds.reference.delete();
+    }
+    }
     );
   }
 
+  void deleteZakatDocuments() async {
+    Firestore.instance.collection('zakat').where('userID', isEqualTo: userID).getDocuments().then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents){
+        ds.reference.delete();
+      }
+    }
+    );
+  }
+
+  Future<void> _confirmDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Reset all information?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  deleteZakatTrackerDocuments();
+                  deleteZakatDocuments();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Reset',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.red,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  Function mathFunc = (Match match) => '${match[1]},';
+
   Widget zakatType(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: Column(
         children: <Widget>[
-          Expanded(
+          Row(
+            children: [
+              Spacer(),
+              IconButton(
+                icon: Icon(MdiIcons.deleteEmptyOutline),
+                onPressed: (){
+                  _confirmDialog();
+                },
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 150,
             child: Stack(
               children: <Widget>[
                 Container(
-                  height: 200.0,
+                  height: 150.0,
                 ),
-                ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.black, Colors.transparent])
-                          .createShader(
-                          Rect.fromLTRB(0, 0, rect.width, rect.height));
-                    },
-                    blendMode: BlendMode.dstIn,
-                ),
-                Row(
-                  children: [
-                    Spacer(),
-                    RaisedButton(
-                      child: Text('View Zakat records', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
-                      color: Colors.cyan,
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return viewZakatList();
-                        }));
-                      },
-                    ),
-                  ],
-                ),
-                /*Padding(
-                  padding: EdgeInsets.fromLTRB(250, 20, 10, 0),
-                  child: RaisedButton(
-                    child: Text('View Zakat records'),
-                    onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return viewZakatList();
-                      }));
-                    },
+                Container(
+                  padding: EdgeInsets.all(30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 20),
+                      Text('ZAKAT',
+                          style: TextStyle(
+                            fontFamily: 'Oswald',
+                            fontSize: 25.0,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black45,
+                          )
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text('CALCU',
+                              style: TextStyle(
+                                  fontFamily: 'Oswald',
+                                  fontSize: 35.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.cyan)),
+                          SizedBox(height: 10,),
+                          Text('LATOR',
+                              style: TextStyle(
+                                  fontFamily: 'Oswald',
+                                  fontSize: 35.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black)),
+                        ],
+                      ),
+                    ],
                   ),
-                ),*/
-                Positioned(
-                    top: 200.0,
-                    left: 40.0,
-                    child: Column(
-                      children: <Widget>[
-                        Text('ZAKAT',
-                            style: TextStyle(
-                              fontFamily: 'Oswald',
-                              fontSize: 25.0,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black45,
-                            )
-                        )
-                      ],
-                    )
-
                 ),
-                Positioned(
-                    top: 220.0,
-                    left: 40.0,
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Text('CALCU',
-                                style: TextStyle(
-                                    fontFamily: 'Oswald',
-                                    fontSize: 35.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.cyan)),
-                            SizedBox(height: 10,),
-                            Text('LATOR',
-                                style: TextStyle(
-                                    fontFamily: 'Oswald',
-                                    fontSize: 35.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black)),
-                          ],
-                        )
-                      ],
-                    )),
               ],
             ),
           ),
           SizedBox(
-            height: 330,
+            height: 320,
             width: 330,
             child: GridView.count(crossAxisCount: 3,
             children: <Widget>[
@@ -207,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Icon(MdiIcons.cash100, size: 40,),
                       SizedBox(height: 10,),
-                      Text('Income'),
+                      Text('Salary'),
                     ],
                   ),
                 ),
@@ -229,9 +301,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               FlatButton(
+                onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return plantation();
+                  }));
+                },
+                child: Container(
+                  child: Column(
+                    children: [
+                      Icon(MdiIcons.treeOutline, size: 40,),
+                      SizedBox(height: 10,),
+                      Text('Plantation'),
+                    ],
+                  ),
+                ),
+              ),
+              FlatButton(
                   onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return treasure();
+                      return Treasure();
                     }));
                   },
                   child: Container(
@@ -240,22 +328,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       Icon(MdiIcons.treasureChest, size: 40,),
                         SizedBox(height: 10,),
                       Text('Treasure'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return plantation();
-                    }));
-                  },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.treeOutline, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Plantation'),
                     ],
                   ),
                 ),
@@ -293,105 +365,47 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ],),
-          )
+          ),
+          StreamBuilder<Object>(
+            stream: Firestore.instance.collection('zakat').where('userID', isEqualTo: userID).snapshots(),
+            builder: (context, snapshot) {
+              if(snapshot == null) return
+                Center(child: Text("Your records are empty\nPress '+' to add records.",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
+              return Column(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return viewZakatList();
+                        }));
+                      },
+                      child: Text('Total Zakat: '+totCost.toString().replaceAllMapped(reg, mathFunc)+' THB', style: TextStyle(fontWeight: FontWeight.w200,fontFamily: 'Nunito', fontSize: 20),)),
+                  SizedBox(height: 10),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18)
+                    ),
+                    onPressed: (){
+                      setState(() {
+                        retrieveZakatAmount();
+                      });
+                    },
+                    color: Colors.teal,
+                    child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                  ),
+                ],
+              );
+            }
+          ),
         ],
       ),
     );
   }
 
-  /*Widget _buildMenuItem(String Name, MdiIcons) {
-    return InkWell(
-        splashColor: Colors.transparent,
-        onTap: () {
-          selectMenuOption(Name);
-          //expenseInputDialog(context);
-          print('You selected $Name');
-          switch(Name){
-            case "Business":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return businessInfo();
-              }));
-              getGoldPrice();
-            }
-            break;
-
-            case "Gold":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return goldInfo();
-              }));
-            }
-            break;
-
-            case "Income":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return incomeInfo();
-              }));
-            }
-            break;
-
-            case "Treasure":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return treasureInfo();
-              }));
-            }
-            break;
-
-            case "Savings":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return sharesInfo();
-              }));
-            }
-            break;
-
-            case "Plantation":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return plantationInfo();
-              }));
-            }
-            break;
-
-            case "Livestock":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return livestockInfo();
-              }));
-            }
-            break;
-
-            case "Fitrah":{
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return fitrahInfo();
-              }));
-            }
-            break;
-          }
-        },
-        child: AnimatedContainer(
-            curve: Curves.easeIn,
-            duration: Duration(milliseconds: 300),
-            height: selected == Name ? 75.0 : 75.0,
-            width: selected == Name ? 100.0 : 75.0,
-            color: selected == Name ? Colors.green : Colors.transparent,
-            child:
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(
-                MdiIcons,
-                color: selected == Name ? Colors.white : Colors.black,
-                size: 30.0,
-              ),
-              SizedBox(height: 12.0),
-              Text(Name,
-                  style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      color: selected == Name ? Colors.white : Colors.black,
-                      fontSize: 15.0))
-            ])));
-
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return loading ? Loading() : WillPopScope(
-      onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.cyan,
@@ -399,123 +413,18 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         drawer: CustomDrawer(),
         body: zakatType(context),
-        /*body: ListView(
-          children: <Widget>[
-            Stack(
-              children: <Widget>[
-                Container(
-                  height: 200.0,
-                ),
-                ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.black, Colors.transparent])
-                          .createShader(
-                          Rect.fromLTRB(0, 0, rect.width, rect.height));
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: Image.asset('..',
-                        height: 280.0, fit: BoxFit.cover)
-                ),
-
-                Padding(
-                  padding: EdgeInsets.fromLTRB(250, 20, 10, 0),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return zakatList();
-                      }));
-                    },
-                    child: Text('View your Zakat records', style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                    ),),
-                  ),
-                ),
-                Positioned(
-                    top: 200.0,
-                    left: 40.0,
-                    child: Column(
-                      children: <Widget>[
-                        Text('ZAKAT FOR',
-                            style: TextStyle(
-                              fontFamily: 'Oswald',
-                              fontSize: 25.0,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black45,
-                            )
-                        )
-                      ],
-                    )
-
-                ),
-                Positioned(
-                    top: 220.0,
-                    left: 40.0,
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Text('MUSLIM',
-                                style: TextStyle(
-                                    fontFamily: 'Oswald',
-                                    fontSize: 35.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green)),
-                            Text(',',
-                                style: TextStyle(
-                                    fontFamily: 'Oswald',
-                                    fontSize: 50.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
-                            SizedBox(width: 0.0),
-                            Text('THAI',
-                                style: TextStyle(
-                                    fontFamily: 'Oswald',
-                                    fontSize: 35.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black)),
-                          ],
-                        )
-                      ],
-                    )),
-              ],
-            ),
-            //Get out of the stack for the options
-          ],
-        ),*/
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return AddZakatPage();
+              }));
+              //_addDialog();
+            },
+            backgroundColor: Colors.cyan,
+            child: Icon(Icons.add),
+          )
       ),
     );
-  }
-
-  selectMenuOption(String Name) {
-    setState(() {
-      selected = Name;
-    });
-  }
-
-  Future<bool> _onBackPressed() {
-    return showDialog(
-      context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit from Zakat me?'),
-        actions: <Widget>[
-          new GestureDetector(
-            onTap: () => Navigator.of(context).pop(false),
-            child: Text("NO"),
-          ),
-          SizedBox(height: 16),
-          new GestureDetector(
-            onTap: () => Navigator.of(context).pop(true),
-            child: Text("YES"),
-          ),
-        ],
-      ),
-    ) ??
-        false;
   }
 
 }

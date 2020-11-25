@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutteriezakat/pages/homepage.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class Savings extends StatefulWidget {
   //business({Key key}) : super(key: key);
@@ -64,8 +67,8 @@ class _SavingsState extends State<Savings> {
   @override
   void initState(){
     super.initState();
-    retrieveIncome();
-    retrieveExpense();
+    //retrieveIncome();
+    //retrieveExpense();
     inputData();
     //small business
     netProfitText = '0.0';
@@ -173,6 +176,7 @@ class _SavingsState extends State<Savings> {
   Widget smallBusiness(){
     return Container(
       padding: EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,34 +221,25 @@ class _SavingsState extends State<Savings> {
                   hintText: '0'
               ),
             ),
-
             SizedBox(height: 20,),
-            Text('Total expense', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            TextField(
-              keyboardType: TextInputType.number,
-              controller: annualCostController,
-              decoration: InputDecoration(
-                  errorText: _validateCost? 'Enter income value': null,
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(10),
-                  ),
-                  hintText: '0'
-              ),
+
+            Divider(
+              height: 20,
+              thickness: 2,
+              color: Colors.cyan,
             ),
 
-            SizedBox(height: 20,),
-            Text('Net Profit', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$netProfitText', style: TextStyle(
+            Text('Net Total', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            Text(netProfitText.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
             SizedBox(height: 20,),
             Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$smallBusinessZakatText', style: TextStyle(
+            Text(smallBusinessZakatText.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
 
-            SizedBox(height: 30,),
             SizedBox(height: 20,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -264,7 +259,7 @@ class _SavingsState extends State<Savings> {
                   color: Colors.red,
                   child: Text('Reset', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(width: 10,),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
@@ -279,13 +274,34 @@ class _SavingsState extends State<Savings> {
                   color: Colors.green,
                   child: Text('Calculate now', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(width: 10,),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18)
                   ),
                   onPressed: () {
                     addBusinessRecord();
+                    setState(() {
+                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
+                      if(annualProfitController.text.isEmpty && annualCostController.text.isEmpty){
+                        _validateProfit = true;
+                        _validateCost = true;
+                        //addBusinessRecord();
+                      } else {
+                        addBusinessRecord();
+                        Flushbar(
+                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message:  "Your Zakat record has been added.",
+                          duration:  Duration(seconds: 3),
+                        )..show(context);
+                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return MyHomePage();
+                        }));*/
+                      }
+                    });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
@@ -300,6 +316,8 @@ class _SavingsState extends State<Savings> {
 
   @override
   Widget build(BuildContext context) {
+    retrieveIncome();
+    retrieveExpense();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,

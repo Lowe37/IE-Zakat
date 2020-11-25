@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutteriezakat/pages/homepage.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class business extends StatefulWidget {
   //business({Key key}) : super(key: key);
@@ -51,7 +54,7 @@ class _businessState extends State<business> {
 
     if(netProfit < eligiblePrice){
       //print('No zakat');
-      String noZakatText = 'No zakat';
+      String noZakatText = '0';
       smallBusinessZakatText = noZakatText;
       wajibZakat = false;
     } else {
@@ -64,8 +67,8 @@ class _businessState extends State<business> {
   @override
   void initState(){
     super.initState();
-    retrieveIncome();
-    retrieveExpense();
+    //retrieveIncome();
+    //retrieveExpense();
     inputData();
     //small business
     netProfitText = '0.0';
@@ -96,7 +99,7 @@ class _businessState extends State<business> {
 
   Future <Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(context: context, initialDate: _date, firstDate: new DateTime(2015), lastDate: new DateTime(2030));
-    
+
     if(picked != null && picked != _date){
       print(new DateFormat("dd-MM-yyyy").format(_date));
       print('${_date.toString()}');
@@ -156,7 +159,6 @@ class _businessState extends State<business> {
   }
 
   String userID;
-
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   void inputData() async {
@@ -173,133 +175,161 @@ class _businessState extends State<business> {
   Widget smallBusiness(){
     return Container(
       padding: EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
       child: SingleChildScrollView(
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.calendar_today),
-                onPressed: (){
-                  _selectDate(context);
-                },
-              ),
-              Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
-              Spacer(),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18)
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.calendar_today),
+                  onPressed: (){
+                    _selectDate(context);
+                  },
                 ),
-                onPressed: (){
-                  retrieveIncome();
-                  retrieveExpense();
-                  annualProfitController.text = totProfit.toString();
-                  annualCostController.text = totCost.toString();
-                },
-                child: Text('Retrieve Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                color: Colors.cyan,
-              ),
-            ],
-          ),
-
-          SizedBox(height: 20,),
-          Text('Total Income', style: TextStyle(fontWeight: FontWeight.w400),),
-          SizedBox(height: 10,),
-          TextField(
-            keyboardType: TextInputType.number,
-            controller: annualProfitController,
-            decoration: InputDecoration(
-              errorText: _validateProfit? 'Enter income value': null,
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(10),
+                Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
+                Spacer(),
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  onPressed: (){
+                    retrieveIncome();
+                    retrieveExpense();
+                    annualProfitController.text = totProfit.toString();
+                    annualCostController.text = totCost.toString();
+                  },
+                  child: Text('Retrieve Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  color: Colors.cyan,
                 ),
-                hintText: '0'
+              ],
             ),
-          ),
 
-          SizedBox(height: 20,),
-          Text('Total expense', style: TextStyle(fontWeight: FontWeight.w400),),
-          SizedBox(height: 10,),
-          TextField(
-            keyboardType: TextInputType.number,
-            controller: annualCostController,
-            decoration: InputDecoration(
-              errorText: _validateCost? 'Enter expense value': null,
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(10),
-                ),
-                hintText: '0'
+            SizedBox(height: 20,),
+            Text('Total Income', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: annualProfitController,
+              decoration: InputDecoration(
+                  errorText: _validateProfit? 'Enter income value': null,
+                  border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(10),
+                  ),
+                  hintText: '0'
+              ),
             ),
-          ),
 
-          SizedBox(height: 20,),
-          Text('Net Profit', style: TextStyle(fontWeight: FontWeight.w400),),
-          SizedBox(height: 10,),
-          Text('$netProfitText', style: TextStyle(
-              fontWeight: FontWeight.w100, fontSize: 20),),
-          SizedBox(height: 20,),
-          Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
-          SizedBox(height: 10,),
-          Text('$smallBusinessZakatText', style: TextStyle(
-              fontWeight: FontWeight.w100, fontSize: 20),),
+            SizedBox(height: 20,),
+            Text('Total Expense', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: annualCostController,
+              decoration: InputDecoration(
+                  errorText: _validateCost? 'Enter expense value': null,
+                  border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(10),
+                  ),
+                  hintText: '0'
+              ),
+            ),
+            SizedBox(height: 20,),
 
-          SizedBox(height: 30,),
-          SizedBox(height: 20,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18)
+            Divider(
+              height: 20,
+              thickness: 2,
+              color: Colors.cyan,
+            ),
+
+            SizedBox(height: 10,),
+            Text('Net Total', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            Text(netProfitText.replaceAllMapped(reg, mathFunc), style: TextStyle(
+                fontWeight: FontWeight.w100, fontSize: 20),),
+            SizedBox(height: 20,),
+            Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            Text(smallBusinessZakatText.replaceAllMapped(reg, mathFunc), style: TextStyle(
+                fontWeight: FontWeight.w100, fontSize: 20),),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  onPressed: (){
+                    annualCostController.clear();
+                    annualProfitController.clear();
+                    setState(() {
+                      netProfitText = '0.0';
+                      smallBusinessZakatText = '0.0';
+                    });
+                  },
+                  color: Colors.red,
+                  child: Text('Reset', style: TextStyle(color: Colors.white),),
                 ),
-                onPressed: (){
-                  annualCostController.clear();
-                  annualProfitController.clear();
-                  setState(() {
-                    netProfitText = '0.0';
-                    smallBusinessZakatText = '0.0';
-                  });
-                },
-                color: Colors.red,
-                child: Text('Reset', style: TextStyle(color: Colors.white),),
-              ),
-              SizedBox(width: 20,),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18)
+                SizedBox(width: 10,),
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      smallBusinessCalculation();
+                      annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
+                    });
+                  },
+                  color: Colors.green,
+                  child: Text('Calculate now', style: TextStyle(color: Colors.white),),
                 ),
-                onPressed: () {
-                  smallBusinessCalculation();
-                  setState(() {
-                    annualProfitController.text.isEmpty? _validateProfit = true : _validateProfit = false;
-                    annualCostController.text.isEmpty? _validateCost = true : _validateCost = false;
-                  });
-                },
-                color: Colors.green,
-                child: Text('Calculate now', style: TextStyle(color: Colors.white),),
-              ),
-              SizedBox(width: 20,),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18)
+                SizedBox(width: 10,),
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
+                      if(annualProfitController.text.isEmpty && annualCostController.text.isEmpty){
+                        _validateProfit = true;
+                        _validateCost = true;
+                        //addBusinessRecord();
+                      } else {
+                        addBusinessRecord();
+                        Flushbar(
+                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message:  "Your Zakat record has been added.",
+                          duration:  Duration(seconds: 3),
+                        )..show(context);
+                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return MyHomePage();
+                    }));*/
+                      }
+                    });
+                  },
+                  color: Colors.blue,
+                  child: Text('Save', style: TextStyle(color: Colors.white),),
                 ),
-                onPressed: () {
-                  addBusinessRecord();
-                },
-                color: Colors.blue,
-                child: Text('Save', style: TextStyle(color: Colors.white),),
-              ),
-            ],
-          )
-        ],
-      ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   } //completed
 
   @override
   Widget build(BuildContext context) {
+    retrieveIncome();
+    retrieveExpense();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,

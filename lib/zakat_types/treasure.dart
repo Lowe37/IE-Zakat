@@ -1,42 +1,66 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dropdown/flutter_dropdown.dart';
+import 'package:flutteriezakat/pages/homepage.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class treasure extends StatefulWidget {
-  treasure({Key key}) : super(key: key);
+class Treasure extends StatefulWidget {
 
   @override
-  _treasureState createState() => _treasureState();
+  _TreasureState createState() => _TreasureState();
 }
 
-class _treasureState extends State<treasure> {
 
-  final buriedTreasureController = TextEditingController();
-  final valuableTreasureController = TextEditingController();
+class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin {
+
+  AnimationController controller;
+  Animation<double> scaleAnimation;
 
   @override
-  //used for initial value such as null to 0
   void initState() {
-    // TODO: implement initState
-    setState(() {
-      buriedZakatAmountText = '0';
-      valuableZakatAmountText = '0';
-    });
     super.initState();
+    inputData();
+    //natural water 10%
+    naturalNetProfit = '0';
+    naturalZakatText = '0';
+
+    //animation
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation =
+        CurvedAnimation(parent: controller, curve: Curves.elasticInOut);
+
+    controller.addListener(() {
+      setState(() {});
+    });
+    controller.forward();
   }
 
+  //10%
+  final totWeightController = new TextEditingController();
+  final yieldPerKgController = new TextEditingController();
+  final totCostController = new TextEditingController();
+  final debtController = new TextEditingController();
+
   @override
-  void dispose(){
-    buriedTreasureController.dispose();
-    valuableTreasureController.dispose();
+  void dispose() {
+    super.dispose();
+    //10%
+    totWeightController.dispose();
+    totCostController.dispose();
+    yieldPerKgController.dispose();
+    debtController.dispose();
   }
 
   DateTime _date = new DateTime.now();
-  TimeOfDay _time = new TimeOfDay.now();
 
   Future <Null> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(context: context, initialDate: _date, firstDate: new DateTime(2000), lastDate: new DateTime.now());
+    final DateTime picked = await showDatePicker(context: context, initialDate: _date, firstDate: new DateTime(2015), lastDate: new DateTime(2030));
 
     if(picked != null && picked != _date){
       print(new DateFormat("dd-MM-yyyy").format(_date));
@@ -47,25 +71,71 @@ class _treasureState extends State<treasure> {
     }
   }
 
-  String buriedZakatAmountText;
-  String valuableZakatAmountText;
+  String userID;
 
-  Future<String> buriedTreasureCalculation()async{
-    double treasureAmount = double.parse(buriedTreasureController.text);
-    double zakatAmount = treasureAmount*20/100;
-    buriedZakatAmountText = zakatAmount.toString();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void inputData() async {
+    final FirebaseUser user = await auth.currentUser();
+    final uid = user.uid;
+    userID = uid;
+    print(userID);
+    // here you write the codes to input the data into firestore
   }
 
-  Future<String> valuableTreasureCalculation()async{
-    double treasureAmount = double.parse(buriedTreasureController.text);
-    double zakatAmount = treasureAmount*2.5/100;
-    valuableZakatAmountText = zakatAmount.toString();
+  double totCost;
+  double newValueExpense;
+
+  void addPlantationRecord () async {
+    Firestore.instance.collection('zakat').add({
+      'category': 'Treasure',
+      'zakatAmount' : naturalZakatText,
+      'wajibZakat' : naturalWajibZakat,
+      'date' : _date,
+      'userID' : userID,
+
+    }).then((value){
+      print(value.documentID);
+      Firestore.instance.collection('zakat').document(value.documentID).updateData({
+        'id' : value.documentID,
+      });
+    });
   }
 
-  Widget buriedTreasure (){
+  void calculateButton (){
+    switch(percentageText){
+      case "Buried 20%": {
+        double totWeight = double.parse(totWeightController.text);
+        double _zakatAmount = totWeight*20/100;
+        naturalZakatText = _zakatAmount.toString();
+        naturalWajibZakat = true;
+      }
+      break;
+      case "Valuable 2.5%":{
+        double totWeight = double.parse(totWeightController.text);
+        double _zakatAmount = totWeight*2.5/100;
+        naturalZakatText = _zakatAmount.toString();
+        naturalWajibZakat = true;
+      }
+      break;
+    }
+  }
+
+  //natural water 10%
+  String naturalZakatText;
+  String naturalNetProfit;
+  bool naturalWajibZakat = false; //condition to pay zakat or not
+  String percentageText;
+  bool _validateProfit = false;
+
+  RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+  Function mathFunc = (Match match) => '${match[1]},';
+
+  Widget naturalWater(){
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(10),
+        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -81,12 +151,13 @@ class _treasureState extends State<treasure> {
               ],
             ),
             SizedBox(height: 20,),
-            Text('Amount of the treasure', style: TextStyle(fontWeight: FontWeight.w400),),
+            Text('Value of the treasure', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
             TextField(
               keyboardType: TextInputType.number,
-              controller: buriedTreasureController,
+              controller: totWeightController,
               decoration: InputDecoration(
+                  errorText: _validateProfit? 'Enter value of the treasure': null,
                   border: new OutlineInputBorder(
                     borderRadius: new BorderRadius.circular(10),
                   ),
@@ -94,154 +165,110 @@ class _treasureState extends State<treasure> {
               ),
             ),
             SizedBox(height: 20,),
+            Text('Percentage'),
+            SizedBox(height: 10,),
+            DropDown(
+                items: ["Buried 20%", "Valuable 2.5%"],
+                hint: Text('Select type'),
+                isExpanded: true,
+                onChanged: (val) {
+                  percentageText = val.toString();
+                }
+            ),
+            SizedBox(height: 10,),
+
+            Divider(
+              height: 20,
+              thickness: 2,
+              color: Colors.cyan,
+            ),
+
+            SizedBox(height: 10,),
             Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
             SizedBox(height: 10,),
-            Text('$buriedZakatAmountText', style: TextStyle(
+            Text(naturalZakatText.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
-            SizedBox(height: 30,),
-            Center(
-              child: RaisedButton(
-                onPressed: () {
-                  setState(() {
-                    buriedTreasureCalculation();
-                  });
-                },
-                color: Colors.green,
-                child: Text('Calculate now', style: TextStyle(color: Colors.white),),
-              ),
-            ),
+            SizedBox(height: 20,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 RaisedButton(
-                  onPressed: (){
-                    buriedTreasureController.clear();
-                    setState(() {
-                      buriedZakatAmountText = '0';
-                    });
-                  },
-                  color: Colors.red,
-                  child: Text('Reset', style: TextStyle(color: Colors.white),),
-                ),
-                SizedBox(width: 20,),
-                RaisedButton(
-                  onPressed: () {
-
-                  },
-                  color: Colors.blue,
-                  child: Text('Save', style: TextStyle(color: Colors.white),),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }//completed
-
-  Widget valuableTreasure (){
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: (){
-                    _selectDate(context);
-                  },
-                ),
-                Text('${(new DateFormat("dd-MM-yyyy").format(_date))}', style: TextStyle(fontSize: 20),),
-              ],
-            ),
-            SizedBox(height: 20,),
-            Text('Amount of the treasure', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            TextField(
-              keyboardType: TextInputType.number,
-              controller: valuableTreasureController,
-              decoration: InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
                   ),
-                  hintText: '0'
-              ),
-            ),
-            SizedBox(height: 20,),
-            Text('Zakat you have to pay', style: TextStyle(fontWeight: FontWeight.w400),),
-            SizedBox(height: 10,),
-            Text('$valuableZakatAmountText', style: TextStyle(
-                fontWeight: FontWeight.w100, fontSize: 20),),
-            SizedBox(height: 30,),
-            Center(
-              child: RaisedButton(
-                onPressed: () {
-                  setState(() {
-                    valuableTreasureCalculation();
-                  });
-                },
-                color: Colors.green,
-                child: Text('Calculate now', style: TextStyle(color: Colors.white),),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                RaisedButton(
                   onPressed: (){
-                    valuableTreasureController.clear();
+                    totWeightController.clear();
+                    totCostController.clear();
+                    debtController.clear();
+                    yieldPerKgController.clear();
                     setState(() {
-                      valuableZakatAmountText = '0';
+                      naturalNetProfit = '0';
+                      naturalZakatText = '0';
                     });
                   },
                   color: Colors.red,
                   child: Text('Reset', style: TextStyle(color: Colors.white),),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(width: 10,),
                 RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
                   onPressed: () {
-
+                    setState(() {
+                      calculateButton();
+                      totWeightController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                    });
+                  },
+                  color: Colors.green,
+                  child: Text('Calculate now', style: TextStyle(color: Colors.white),),
+                ),
+                SizedBox(width: 10),
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
+                      if(totWeightController.text.isEmpty){
+                        _validateProfit = true;
+                        //addBusinessRecord();
+                      } else {
+                        addPlantationRecord();
+                        Flushbar(
+                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message:  "Your Zakat record has been added.",
+                          duration:  Duration(seconds: 3),
+                        )..show(context);
+                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return MyHomePage();
+                        }));*/
+                      }
+                    });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }//completed
-  
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.cyan,
-          title: Text('Treasure'),
-          bottom: TabBar(
-            tabs: <Widget>[
-              Tab(
-                child: Text('Buried treasure'),
-              ),
-              Tab(
-                child: Text('Valuable treasure'),
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            buriedTreasure(),
-            valuableTreasure(),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.cyan,
+        title: Text('Treasure'),
       ),
+      body: naturalWater(),
     );
   }
 }

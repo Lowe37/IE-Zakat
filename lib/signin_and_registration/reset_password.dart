@@ -52,42 +52,48 @@ class _resetPasswordPageState extends State<resetPasswordPage> {
           child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   SizedBox(height: 50),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Text("Reset Password", style: TextStyle(color:Colors.grey, fontFamily: 'Nunito-Regular', fontWeight: FontWeight.w200, fontSize: 30),),
+                  Text('Reset Password', style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 40,
+                      color: Colors.indigo
+                  ),
                   ),
                   SizedBox(height: 40,),
                   emailTextField(),
-                  SizedBox(height: 50,),
-                  Align(
-                    alignment: Alignment.center,
-                    child: RaisedButton(
-                      color: Colors.white,
-                      child: Text(
-                        'Submit',
-                        style: TextStyle(color: Colors.green,),
-                      ),
-                      onPressed: (){
-                        resetPassword();
-                      },
+                  SizedBox(height: 20,),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18)
                     ),
+                    color: Colors.green,
+                    child: Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: (){
+                      resetPassword();
+                    },
                   ),
                   SizedBox(height: 40,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(width: 5,),
+                      Text('Back to ', style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold
+                      ),),
                       InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return LoginPageTest();
                           }));
                         },
-                        child: Text('Back to Sign In', style: TextStyle(
-                            color: Colors.grey,
+                        child: Text('Sign In', style: TextStyle(
+                            color: Colors.teal,
                             fontWeight: FontWeight.bold
                         ),),
                       )

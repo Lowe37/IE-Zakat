@@ -6,6 +6,8 @@ import 'package:flutteriezakat/services/auth.dart';
 import 'package:flutteriezakat/shared/loading.dart';
 import 'package:flutteriezakat/sign_in.dart';
 import 'package:flutteriezakat/signin_and_registration/sign_in_test.dart';
+import 'package:flutteriezakat/zakat_tracker/zakat_tracker_home.dart';
+import 'package:form_validator/form_validator.dart';
 
 void main () => runApp(MaterialApp(
   home: registerPage(),
@@ -31,12 +33,35 @@ class _registerPageState extends State<registerPage> {
   String name = '';
   String email = '';
   String password = '';
-  String confirmpassword = '';
+  String confirmPassword = '';
   String error = '';
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+
+  void testValidator (){
+    final validate = ValidationBuilder().minLength(10).maxLength(50).build();
+
+    print(validate('test'));        // Minimum length must be at least 10 characters
+    print(validate('Hello World')); // n
+  }
+
+  final _emailValidator = ValidationBuilder().email().maxLength(50).build();
+
+  bool _validatorEmail = false;
+  bool _validatorPassword = false;
+  bool _validatorConfirmPassword = false;
+
+  bool _showHidePassword = true;
+  bool _showHideConfirmPassword = true;
+
+  void toggleShowHidePassword (){
+    setState(() {
+      _showHidePassword = !_showHidePassword;
+      _showHideConfirmPassword = !_showHideConfirmPassword;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,49 +73,110 @@ class _registerPageState extends State<registerPage> {
             child: Form(
               key: _formKey,
                 child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 50),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Text("Registration", style: TextStyle(color:Colors.grey, fontFamily: 'Nunito-Regular', fontWeight: FontWeight.w200, fontSize: 30),),
+                  SizedBox(height: 50),
+                  Text('Registration', style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 40,
+                    color: Colors.indigo
                 ),
-                SizedBox(height: 40,),
-                emailTextField(),
-                SizedBox(height: 10,),
-                passwordTextField(),
-                SizedBox(height: 10,),
-                confirmPasswordTextField(),
-                SizedBox(height: 50,),
-                Align(
-                  alignment: Alignment.center,
-                  child: RaisedButton(
-                    color: Colors.white,
-                    child: Text(
-                      'Register',
-                      style: TextStyle(color: Colors.green,),
-                    ),
-                    onPressed: (){
-                      signUp();
-                    },
-                    /*onPressed: () async {
-                      if(_formKey.currentState.validate()){
-                        setState (() => loading = true);
-                        dynamic result = await _auth.registerWithEmailAndPassword(name, email, password, confirmpassword);
-                        /*Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage()),
-                        );*/
-                        if(result is PlatformException){
-                          if(result.code == 'ERROR_EMAIL_ALREADY_IN_USE')
-                          setState (() => error = 'Please enter a valid email');
-                          loading = false;
-                        }
-                      }
-                    },*/
+                  ),
+                  SizedBox(height: 40,),
+                  TextFormField(
+                  controller: emailController,
+                  //validator: _emailValidator,
+                  //validator: (val) => val.isEmpty ? 'Enter an email' : null,
+                  onChanged: (val) {
+                    setState(() => email = val);
+                  },
+                  decoration: InputDecoration(
+                      errorText: _validatorEmail? 'Enter an email': null,
+                      labelText: 'Email',
+                      border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(16)
+                      )
                   ),
                 ),
-                SizedBox(height: 40,),
+                  //emailTextField(),
+                  SizedBox(height: 10,),
+                  TextFormField(
+                  controller: passwordController,
+                  obscureText: _showHidePassword,
+                  //validator: _emailValidator,
+                  //validator: (val) => val.isEmpty ? 'Enter a password' : null,
+                  onChanged: (val) {
+                    setState(() => email = val);
+                  },
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        onPressed: (){
+                          setState(() {
+                            _showHidePassword = !_showHidePassword;
+                          });
+                        },
+                        icon: Icon(
+                          _showHidePassword ? Icons.visibility_off : Icons.visibility,
+                        ),
+                      ),
+                      errorText: _validatorPassword? 'Enter a password': null,
+                      labelText: 'Password',
+                      border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(16)
+                      )
+                  ),
+                ),
+                  //passwordTextField(),
+                  SizedBox(height: 10,),
+                  TextFormField(
+                  controller: confirmPasswordController,
+                  obscureText: _showHideConfirmPassword,
+                  //validator: _emailValidator,
+                  //validator: (val) => val.isEmpty ? 'Enter a password' : null,
+                  onChanged: (val) {
+                    setState(() => confirmPassword = val);
+                  },
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        onPressed: (){
+                          setState(() {
+                            _showHideConfirmPassword = !_showHideConfirmPassword;
+                          });
+                        },
+                        icon: Icon(
+                          _showHideConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                        ),
+                      ),
+                      errorText: _validatorConfirmPassword? 'Enter to confirm password': null,
+                      labelText: 'Confirm Password',
+                      border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(16)
+                      )
+                  ),
+                ),
+                  //confirmPasswordTextField(),
+                  SizedBox(height: 30,),
+                  RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)
+                  ),
+                  color: Colors.amber,
+                    child: Text(
+                    'Register',
+                    style: TextStyle(color: Colors.white, fontFamily: 'Nunito', ),
+                  ),
+                    onPressed: () {
+                        signUp();
+                      // testValidator();
+                      setState(() {
+                        emailController.text.isEmpty? _validatorEmail = true : _validatorEmail = false;
+                        passwordController.text.isEmpty? _validatorPassword = true : _validatorPassword = false;
+                        confirmPasswordController.text.isEmpty? _validatorConfirmPassword = true : _validatorConfirmPassword = false;
+                      });
+                  },
+                ),
+                 SizedBox(height: 30,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -105,9 +191,10 @@ class _registerPageState extends State<registerPage> {
                         }));
                       },
                       child: Text('Sign In', style: TextStyle(
-                          color: Colors.green,
+                          color: Colors.teal,
                           fontWeight: FontWeight.bold
-                      ),),
+                      ),
+                      ),
                     )
                   ],
                 ),
@@ -134,7 +221,7 @@ class _registerPageState extends State<registerPage> {
     bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
     print(emailValid);
 
-    if(password == confirmPassword && password.length >= 6){
+   if(password == confirmPassword && password.length >= 6){
       _auth2
       .createUserWithEmailAndPassword(email: email, password: password)
       .then((user){
@@ -144,24 +231,26 @@ class _registerPageState extends State<registerPage> {
         });
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyHomePage()),
+          MaterialPageRoute(builder: (context) => zakatTrackerHome()),
         );
       }).catchError((error){
-        /*if(error == PlatformException){
+        if(error == PlatformException){
           if(error.code == 'ERROR_EMAIL_ALREADY_IN_USE') {
             /// `foo@bar.com` has alread been registered.
           }
-        }*/
+        }
+        print(error.message);
         scaffoldKey.currentState.showSnackBar(SnackBar(
           content: Text(error.message, style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.red,
         ));
-        print(error.message);
-
       });
     } else {
-      print('Fail to confirm password');
-    }
+     scaffoldKey.currentState.showSnackBar(SnackBar(
+       content: Text("The password did not match.", style: TextStyle(color: Colors.white)),
+       backgroundColor: Colors.red,
+     ));
+   }
   }
 
   Container emailTextField(){
@@ -207,7 +296,7 @@ class _registerPageState extends State<registerPage> {
         controller: confirmPasswordController,
         validator: (val) => val.isEmpty ? 'Enter to confirm your password' : null,
         onChanged: (val) {
-          setState(() => confirmpassword = val);
+          setState(() => confirmPassword = val);
         },
         obscureText: true,
         decoration: InputDecoration(

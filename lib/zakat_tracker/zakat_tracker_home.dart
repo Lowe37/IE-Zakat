@@ -63,7 +63,6 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
   }
 
   String userID;
-
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   void inputData() async {
@@ -74,17 +73,42 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
     // here you write the codes to input the data into firestore
   }
 
+  void ColourValue (){
+    switch(categoryText){
+      case "Business" : {
+        colorValText = "0xFFFDD835";
+        //print(colorValText);
+      }
+      break;
+      case "Income" : {
+        colorValText = "0xFF1E88E5";
+      }
+      break;
+      case "Savings" : {
+        colorValText = "0xFF43A047";
+      }
+      break;
+      case "Plantation" : {
+        colorValText = "0xFFE53935";
+      }
+      break;
+    }
+  }
+
   String typeText;
   String categoryText;
+  String colorValText;
 
   void addZakatTracker() async {
+    ColourValue();
     Firestore.instance.collection('zakatTracker').add({
       'userID' : userID,
       'amount': nameController.text,
-      'note' : noteController.text,
+      'note' : noteController.text.isEmpty ? "No note added" : "No note added",
       'category' : categoryText,
       'type' : typeText,
       'date' : _date,
+      'colorVal' : colorValText,
 
     }).then((value){
       print(value.documentID);
@@ -98,7 +122,7 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
   double newValue;
   double totalValue;
 
-  void addCostOrProfit(docID) async {
+  /*void addCostOrProfit(docID) async {
     switch(costOrProfit){
       case 'Profit': {
         double total = 0.0;
@@ -120,7 +144,7 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
       }
       break;
     }
-  }
+  }*/
 
   DateTime _date = new DateTime.now();
 
@@ -166,7 +190,7 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
                     TextField(
                       controller: noteController,
                       decoration: InputDecoration(
-                          errorText: _validateNote ? 'Note is required' : null,
+                          //errorText: _validateNote ? 'Note is required' : null,
                           border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(10),
                           ),
@@ -220,12 +244,13 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
                 RaisedButton(
                   onPressed: () {
                     setState(() {
-                      nameController.text.isEmpty ? _validateAmount = true : null;
-                      noteController.text.isEmpty ?  _validateNote = true : null;
+                      nameController.text.isEmpty ? _validateAmount = true : addZakatTracker();
+                      //noteController.text.isEmpty ?  _validateNote = true : addZakatTracker();
                     });
-                    addZakatTracker();
                     inputData();
+                    ColourValue();
                     Navigator.of(context).pop();
+                    _validateAmount = false;
                     nameController.clear();
                     profitController.clear();
                     costController.clear();
@@ -370,9 +395,9 @@ class _zakatTrackerHomeState extends State<zakatTrackerHome> with SingleTickerPr
               StreamBuilder(
                 stream: Firestore.instance.collection('zakatTracker').where('userID', isEqualTo: userID).snapshots(),
                 builder: (context, snapshot){
-                  if(snapshot == null) return
-                    Center(child: Text("Your records are empty\nPress '+' to add records.",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
+                  if(snapshot == null){
+                    return Text('Loading...');
+                  }
                   return Column(
                     children: zakatTrackerList(snapshot),
                   );

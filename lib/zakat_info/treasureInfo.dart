@@ -83,7 +83,7 @@ class _treasureInfoState extends State<treasureInfo> {
                     //setState (() => loading = true);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => treasure()),
+                      MaterialPageRoute(builder: (context) => Treasure()),
                     );
                   },
                   color: Colors.green,
