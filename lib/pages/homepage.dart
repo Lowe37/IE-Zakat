@@ -174,231 +174,233 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget zakatType(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      body: Column(
-        children: <Widget>[
-          Row(
-            children: [
-              Spacer(),
-              IconButton(
-                icon: Icon(MdiIcons.deleteEmptyOutline),
-                onPressed: (){
-                  _confirmDialog();
-                },
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 150,
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  height: 150.0,
-                ),
-                Container(
-                  padding: EdgeInsets.all(30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(height: 20),
-                      Text('ZAKAT',
-                          style: TextStyle(
-                            fontFamily: 'Oswald',
-                            fontSize: 25.0,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black45,
-                          )
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text('CALCU',
-                              style: TextStyle(
-                                  fontFamily: 'Oswald',
-                                  fontSize: 35.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.cyan)),
-                          SizedBox(height: 10,),
-                          Text('LATOR',
-                              style: TextStyle(
-                                  fontFamily: 'Oswald',
-                                  fontSize: 35.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black)),
-                        ],
-                      ),
-                    ],
-                  ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: [
+                Spacer(),
+                IconButton(
+                  icon: Icon(MdiIcons.deleteEmptyOutline),
+                  onPressed: (){
+                    _confirmDialog();
+                  },
                 ),
               ],
             ),
-          ),
-          SizedBox(
-            height: 320,
-            width: 330,
-            child: GridView.count(crossAxisCount: 3,
-            children: <Widget>[
-              FlatButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return business();
-                    }));
-                  },
-                  child: Container(
+            SizedBox(
+              height: 150,
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    height: 150.0,
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(30),
                     child: Column(
-                      children: [
-                        Icon(MdiIcons.store, size: 40,),
-                        SizedBox(height: 10,),
-                        Text('Business'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 20),
+                        Text('ZAKAT',
+                            style: TextStyle(
+                              fontFamily: 'Oswald',
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black45,
+                            )
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Text('CALCU',
+                                style: TextStyle(
+                                    fontFamily: 'Oswald',
+                                    fontSize: 35.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.cyan)),
+                            SizedBox(height: 10,),
+                            Text('LATOR',
+                                style: TextStyle(
+                                    fontFamily: 'Oswald',
+                                    fontSize: 35.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black)),
+                          ],
+                        ),
                       ],
                     ),
                   ),
+                ],
               ),
-              FlatButton(
-                onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return gold();
-                  }));
-                },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.gold, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Gold'),
-                    ],
-                  ),
+            ),
+            SizedBox(
+              height: 320,
+              width: 330,
+              child: GridView.count(crossAxisCount: 3,
+              children: <Widget>[
+                FlatButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return business();
+                      }));
+                    },
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(MdiIcons.store, size: 40,),
+                          SizedBox(height: 10,),
+                          Text('Business'),
+                        ],
+                      ),
+                    ),
                 ),
-              ),
-              FlatButton(
-                onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return income();
-                  }));
-                },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.cash100, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Salary'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
-                onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return Savings();
-                  }));
-                },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.piggyBank, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Savings'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
-                onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return plantation();
-                  }));
-                },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.treeOutline, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Plantation'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
+                FlatButton(
                   onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return Treasure();
+                      return gold();
                     }));
                   },
                   child: Container(
                     child: Column(
                       children: [
-                      Icon(MdiIcons.treasureChest, size: 40,),
+                        Icon(MdiIcons.gold, size: 40,),
                         SizedBox(height: 10,),
-                      Text('Treasure'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return livestock();
-                    }));
-                  },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.cow, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Livestock'),
-                    ],
-                  ),
-                ),
-              ),
-              FlatButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return Fitrah();
-                    }));
-                  },
-                child: Container(
-                  child: Column(
-                    children: [
-                      Icon(MdiIcons.giftOutline, size: 40,),
-                      SizedBox(height: 10,),
-                      Text('Fitrah'),
-                    ],
-                  ),
-                ),
-              ),
-            ],),
-          ),
-          StreamBuilder<Object>(
-            stream: Firestore.instance.collection('zakat').where('userID', isEqualTo: userID).snapshots(),
-            builder: (context, snapshot) {
-              if(snapshot == null) return
-                Center(child: Text("Your records are empty\nPress '+' to add records.",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
-              return Column(
-                children: [
-                  InkWell(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return viewZakatList();
-                        }));
-                      },
-                      child: Text('Total Zakat: '+totCost.toString().replaceAllMapped(reg, mathFunc)+' THB', style: TextStyle(fontWeight: FontWeight.w200,fontFamily: 'Nunito', fontSize: 20),)),
-                  SizedBox(height: 10),
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18)
+                        Text('Gold'),
+                      ],
                     ),
-                    onPressed: (){
-                      setState(() {
-                        retrieveZakatAmount();
-                      });
-                    },
-                    color: Colors.teal,
-                    child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
                   ),
-                ],
-              );
-            }
-          ),
-        ],
+                ),
+                FlatButton(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return income();
+                    }));
+                  },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Icon(MdiIcons.cash100, size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Salary'),
+                      ],
+                    ),
+                  ),
+                ),
+                FlatButton(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return Savings();
+                    }));
+                  },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Icon(MdiIcons.piggyBank, size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Savings'),
+                      ],
+                    ),
+                  ),
+                ),
+                FlatButton(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return plantation();
+                    }));
+                  },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Icon(MdiIcons.treeOutline, size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Plantation'),
+                      ],
+                    ),
+                  ),
+                ),
+                FlatButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return Treasure();
+                      }));
+                    },
+                    child: Container(
+                      child: Column(
+                        children: [
+                        Icon(MdiIcons.treasureChest, size: 40,),
+                          SizedBox(height: 10,),
+                        Text('Treasure'),
+                      ],
+                    ),
+                  ),
+                ),
+                FlatButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return livestock();
+                      }));
+                    },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Icon(MdiIcons.cow, size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Livestock'),
+                      ],
+                    ),
+                  ),
+                ),
+                FlatButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return Fitrah();
+                      }));
+                    },
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Icon(MdiIcons.giftOutline, size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Fitrah'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],),
+            ),
+            StreamBuilder<Object>(
+              stream: Firestore.instance.collection('zakat').where('userID', isEqualTo: userID).snapshots(),
+              builder: (context, snapshot) {
+                if(snapshot == null) return
+                  Center(child: Text("Your records are empty\nPress '+' to add records.",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
+                return Column(
+                  children: [
+                    InkWell(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return viewZakatList();
+                          }));
+                        },
+                        child: Text('Total Zakat: '+totCost.toString().replaceAllMapped(reg, mathFunc)+' THB', style: TextStyle(fontWeight: FontWeight.w200,fontFamily: 'Nunito', fontSize: 20),)),
+                    SizedBox(height: 10),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18)
+                      ),
+                      onPressed: (){
+                        setState(() {
+                          retrieveZakatAmount();
+                        });
+                      },
+                      color: Colors.teal,
+                      child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                    ),
+                  ],
+                );
+              }
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropdown/flutter_dropdown.dart';
@@ -6,6 +7,7 @@ import 'package:flutteriezakat/pages/homepage.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class plantation extends StatefulWidget {
   plantation({Key key}) : super(key: key);
@@ -338,10 +340,23 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(18)
                   ),
                   onPressed: () {
-                    addPlantationRecord();
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                      return MyHomePage();
-                    }));
+                    setState(() {
+                      if(totWeightController.text.isEmpty && yieldPerKgController.text.isEmpty && totCostController.text.isEmpty){
+                        _validateWeight = true;
+                        _validatePrice = true;
+                        _validateCost = true;
+                      } else {
+                        addPlantationRecord();
+                        Flushbar(
+                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message:  "Your Zakat record has been added.",
+                          duration:  Duration(seconds: 3),
+                        )..show(context);
+                      }
+
+                    });
                   },
                   color: Colors.blue,
                   child: Text('Save', style: TextStyle(color: Colors.white),),

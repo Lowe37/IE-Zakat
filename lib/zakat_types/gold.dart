@@ -182,6 +182,83 @@ class _goldState extends State<gold> {
     // here you write the codes to input the data into firestore
   }
 
+  Future<void> _confirmDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+zakatAmount.toStringAsFixed(2).replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addBusinessRecord();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  goldIngotController.clear();
+                  goldBarPriceController.clear();
+                  //goldJewelry
+                  goldJewelryWearController.clear();
+                  goldJewelryWeightController.clear();
+                  goldJewelryWearExceedController.clear();
+                  goldJewelryPriceController.clear();
+                  //goldMortgage
+                  goldMortgageBeforeController.clear();
+                  goldMortgageAfterController.clear();
+                  goldMortgagePriceController.clear();
+                  //silver
+                  silverWeightController.clear();
+                  silverPriceController.clear();
+                  setState(() {
+                    totalPrice = 0;
+                    zakatAmount = 0;
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void addBusinessRecord () async {
     Firestore.instance.collection('zakat').add({
       'category': 'Gold',
@@ -493,31 +570,21 @@ class _goldState extends State<gold> {
                   onPressed: () {
                     //addBusinessRecord();
                     setState(() {
-                      if(goldIngotController.text.isEmpty && goldBarPriceController.text.isEmpty && goldJewelryWeightController.text.isEmpty
-                          && goldJewelryPriceController.text.isEmpty && goldJewelryWearExceedController.text.isEmpty && goldMortgageBeforeController.text.isEmpty
-                          && goldMortgageAfterController.text.isEmpty && goldMortgagePriceController.text.isEmpty && silverWeightController.text.isEmpty
-                          && silverPriceController.text.isEmpty){
-                        _validateGoldBar = true;
-                        _validateGoldBarPrice = true;
-                        _validateGoldJewelry = true;
-                        _validateGoldJewelryPrice = true;
-                        _validateGoldJewelryExceed = true;
-                        //mortgage
-                        _validateBefore = true;
-                        _validateAfter = true;
-                        _validatePrice = true;
-                        //silver
-                        _validateSilver = true;
-                        _validateSilverPrice = true;
-                      } else {
-                        addBusinessRecord();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
+                      goldIngotController.text.isEmpty ? _validateGoldBar = true : _validateGoldBar = false;
+                      goldBarPriceController.text.isEmpty ? _validateGoldBarPrice = true : _validateGoldBarPrice = false;
+                      goldJewelryWeightController.text.isEmpty ? _validateGoldJewelry = true : _validateGoldJewelry = false;
+                      goldJewelryPriceController.text.isEmpty ? _validateGoldJewelryPrice = true : _validateGoldJewelryPrice = false;
+                      goldJewelryWearExceedController.text.isEmpty ? _validateGoldJewelryExceed = true : _validateGoldJewelryExceed = false;
+                      goldMortgageBeforeController.text.isEmpty ? _validateBefore = true : _validateBefore = false;
+                      goldMortgageAfterController.text.isEmpty ? _validateAfter = true : _validateAfter = false;
+                      goldMortgagePriceController.text.isEmpty ? _validatePrice = true : _validatePrice = false;
+                      silverWeightController.text.isEmpty ? _validateSilver = true : _validateSilver = false;
+                      silverPriceController.text.isEmpty ? _validateSilverPrice = true : _validateSilverPrice = false;
+
+                      if(_validateGoldBar == false && _validateGoldBarPrice == false && _validateGoldJewelry == false
+                          && _validateGoldJewelryPrice == false && _validateGoldJewelryExceed == false && _validateBefore == false
+                          && _validateAfter == false && _validatePrice == false && _validateSilver == false && _validateSilverPrice == false){
+                        _confirmDialog();
                       }
                     });
                   },

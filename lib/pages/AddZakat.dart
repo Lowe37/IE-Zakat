@@ -5,6 +5,7 @@ import 'package:flutter_dropdown/flutter_dropdown.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flushbar/flushbar.dart';
+//import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class AddZakatPage extends StatefulWidget {
   @override
@@ -192,6 +193,9 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
   bool _validateNote = false;
   bool _validateCategory = false;
 
+  String _errorCategory;
+  String _errorType;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,14 +239,24 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                   ),
                   SizedBox(height: 20,),
                   Text('Category', style: TextStyle(fontWeight: FontWeight.w400),),
-                  DropDown(
-                      items: ["Business", "Salary", "Savings", "Plantation"],
+                  /*FormBuilderDropdown(
+                      items: ['Business', 'Salary', 'Savings', 'Plantation']
+                          .map((category) => DropdownMenuItem(
+                        value: category,
+                        child: Text('$category'),
+                      ))
+                          .toList(),
+                      validator: FormBuilderValidators.required(context),
+                      decoration: InputDecoration(
+                        //labelText: 'Email',
+                        errorText: _errorCategory,
+                      ),
                       hint: Text("Select category"),
                       isExpanded: true,
                       onChanged: (val) {
                         categoryText = val.toString();
                       }
-                  ),
+                  ),*/
                   SizedBox(height: 20,),
                   Text('Instruction'),
                   SizedBox(height: 10,),
@@ -251,30 +265,54 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                   Text('- Please select type Income only for category Savings.', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),),
                   SizedBox(height: 20,),
                   Text('Type', style: TextStyle(fontWeight: FontWeight.w400),),
-                  DropDown(
-                    items: ["Income", "Expense"],
-                    hint: Text("Select type"),
-                    isExpanded: true,
-                    onChanged: (val){
-                      typeText = val.toString();
-                      print(typeText);
-                    },
-                  ),
+                  /*FormBuilderDropdown(
+                      items: ['Income', 'Expense']
+                          .map((type) => DropdownMenuItem(
+                        value: type,
+                        child: Text('$type'),
+                      ))
+                          .toList(),
+                      validator: FormBuilderValidators.required(context),
+                      decoration: InputDecoration(
+                        //labelText: 'Email',
+                        errorText: _errorType,
+                      ),
+                      hint: Text("Select type"),
+                      isExpanded: true,
+                      onChanged: (val) {
+                        typeText = val.toString();
+                      }
+                  ),*/
                   SizedBox(height: 20,),
                   Builder(
                     builder: (context) => RaisedButton(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18)
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        //setState(() => _errorCategory = null);
+                        /*if(_errorCategory ==  null){
+                          setState(() => _errorCategory = 'Select category.');
+                        }*/
                         setState(() {
-                          //nameController.text.isEmpty ? _validateAmount = true : _confirmDialog();
+                          nameController.text.isEmpty ? _validateAmount = true : _validateAmount = false;
                           //noteController.text.isEmpty ?  _validateNote = true : _confirmDialog();
-                          if(nameController.text.isEmpty){
-                            _validateAmount = true;
-                            //addBusinessRecord();
-                          } else{
+                          //_errorCategory == null ? _validateCategory = true : _validateCategory = false;
+                          _errorCategory == null ? _errorCategory = 'Select category.' : _errorCategory;
+                          _errorType == null ? _errorType = 'Select type.' : _errorType;
+                          /*if(_errorCategory ==  null){
+                            setState(() => _errorCategory = 'Select category.');
+                          }
+                          if(_errorType ==  null){
+                            setState(() => _errorType = 'Select type.');
+                          }*/
+
+                          if(_validateAmount == false && _errorCategory != null && _errorType != null){
                             _confirmDialog();
+                            /*_validateAmount = true;
+                            _errorCategory = 'Select category.';
+                            _errorType = 'Select type.';*/
+                            //addBusinessRecord();
                           }
                         });
                         //addBusinessRecord()

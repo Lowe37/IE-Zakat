@@ -102,6 +102,69 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
     });
   }
 
+  Future<void> _confirmDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+naturalZakatText.replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addPlantationRecord();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  totWeightController.clear();
+                  setState(() {
+                   naturalZakatText = "0.0";
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void calculateButton (){
     switch(percentageText){
       case "Buried 20%": {
@@ -230,23 +293,9 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
                   ),
                   onPressed: () {
                     setState(() {
-                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
-                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
-                      if(totWeightController.text.isEmpty){
-                        _validateProfit = true;
-                        //addBusinessRecord();
-                      } else {
-                        addPlantationRecord();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
-                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return MyHomePage();
-                        }));*/
+                      totWeightController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      if(_validateProfit == false){
+                        _confirmDialog();
                       }
                     });
                   },

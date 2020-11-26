@@ -197,10 +197,10 @@ class _FitrahState extends State<Fitrah> {
                   ),
                   onPressed: () {
                     setState(() {
-                      calculateFitrah();
                       annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
                       annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
                     });
+                    calculateFitrah();
                   },
                   color: Colors.green,
                   child: Text('Calculate now', style: TextStyle(color: Colors.white),),

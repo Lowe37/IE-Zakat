@@ -43,18 +43,18 @@ class _SavingsState extends State<Savings> {
     //print(goldPrice);
     double eligiblePrice = goldPrice*5.58;
     double annualProfit = double.parse(annualProfitController.text);
-    double annualCost = double.parse(annualCostController.text);
-    double netProfit = annualProfit-annualCost;
-    netProfitText = netProfit.toString();
+    //double annualCost = double.parse(annualCostController.text);
+    //double netProfit = annualProfit-annualCost;
+    netProfitText = annualProfit.toString();
     print(netProfitText);
-    double zakatAmount = netProfit*2.5/100;
+    double zakatAmount = annualProfit*2.5/100;
     print(zakatAmount);
     eligiblePriceText = eligiblePrice.toString();
     smallBusinessZakatText = zakatAmount.toString();
 
-    if(netProfit < eligiblePrice){
+    if(annualProfit < eligiblePrice){
       //print('No zakat');
-      String noZakatText = 'No zakat';
+      String noZakatText = '0';
       smallBusinessZakatText = noZakatText;
       wajibZakat = false;
     } else {
@@ -170,6 +170,71 @@ class _SavingsState extends State<Savings> {
     // here you write the codes to input the data into firestore
   }
 
+  Future<void> _confirmDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+smallBusinessZakatText.replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addBusinessRecord();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  annualCostController.clear();
+                  annualProfitController.clear();
+                  setState(() {
+                    netProfitText = '0.0';
+                    smallBusinessZakatText = '0.0';
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   bool _validateProfit = false;
   bool _validateCost = false;
 
@@ -282,24 +347,10 @@ class _SavingsState extends State<Savings> {
                   onPressed: () {
                     addBusinessRecord();
                     setState(() {
-                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
                       //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
-                      if(annualProfitController.text.isEmpty && annualCostController.text.isEmpty){
-                        _validateProfit = true;
-                        _validateCost = true;
-                        //addBusinessRecord();
-                      } else {
-                        addBusinessRecord();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
-                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return MyHomePage();
-                        }));*/
+                      if(_validateProfit == false){
+                        _confirmDialog();
                       }
                     });
                   },

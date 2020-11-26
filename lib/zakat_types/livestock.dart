@@ -124,6 +124,73 @@ class _livestockState extends State<livestock> {
   RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
   Function mathFunc = (Match match) => '${match[1]},';
 
+  Future<void> _confirmDialogCow() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+totAmount.toString().replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addBusinessRecordCow();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  cowAmountController.clear();
+                  maleCowController.clear();
+                  femaleCowController.clear();
+                  setState(() {
+                    maleCow = 0;
+                    femaleCow = 0;
+                    totAmount = 0;
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void cowCalculator (){
       int maleCowPrice = int.parse(maleCowController.text);
       int femaleCowPrice = int.parse(femaleCowController.text);
@@ -511,25 +578,11 @@ class _livestockState extends State<livestock> {
                   ),
                   onPressed: () {
                     setState(() {
-                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
-                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
-                      if(cowAmountController.text.isEmpty && maleCowController.text.isEmpty && femaleCowController.text.isEmpty){
-                        _validateCowAmount = true;
-                        _validateMaleCowPrice = true;
-                        _validateFemaleCowPrice = true;
-                        //addBusinessRecord();
-                      } else {
-                        addBusinessRecordCow();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
-                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return MyHomePage();
-                        }));*/
+                      cowAmountController.text.isEmpty ? _validateCowAmount = true : _validateCowAmount = false;
+                      maleCowController.text.isEmpty ? _validateMaleCowPrice = true : _validateMaleCowPrice = false;
+                      femaleCowController.text.isEmpty ? _validateFemaleCowPrice = true : _validateFemaleCowPrice = false;
+                      if(_validateCowAmount == false && _validateMaleCowPrice == false && _validateFemaleCowPrice == false) {
+                        _confirmDialogCow();
                       }
                     });
                   },
@@ -584,6 +637,71 @@ class _livestockState extends State<livestock> {
         femaleGoat = 10;
         totAmountGoat = femaleGoat*goatPrice;
       }
+  }
+
+  Future<void> _confirmDialogGoat() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+totAmountGoat.toString().replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addBusinessRecordGoat();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  goatAmountController.clear();
+                  goatPriceController.clear();
+                  setState(() {
+                    femaleGoat = 0;
+                    totAmountGoat = 0;
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget goatTab (){
@@ -693,23 +811,10 @@ class _livestockState extends State<livestock> {
                   ),
                   onPressed: () {
                     setState(() {
-                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
-                      //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
-                      if(goatAmountController.text.isEmpty && goatPriceController.text.isEmpty){
-                        _validateGoatAmount = true;
-                        _validateGoatPrice = true;
-                      } else {
-                        addBusinessRecordGoat();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
-                        /*Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return MyHomePage();
-                        }));*/
+                      goatAmountController.text.isEmpty ? _validateGoatAmount = true : _validateGoatAmount = false;
+                      goatPriceController.text.isEmpty ? _validateGoatPrice = true : _validateGoatPrice = false;
+                      if(_validateGoatAmount == false && _validateGoatPrice == false){
+                        _confirmDialogGoat();
                       }
                     });
                   },

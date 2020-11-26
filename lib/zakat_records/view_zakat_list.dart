@@ -52,6 +52,14 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
   void initState() {
     super.initState();
     inputData();
+    totBusiness = 0;
+    totGold = 0;
+    totSalary = 0;
+    totSavings = 0;
+    totPlant = 0;
+    totTreasure = 0;
+    totLivestock = 0;
+    totLivestockGoat = 0;
 
     controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: 450));
@@ -200,7 +208,7 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
         padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
         margin: EdgeInsets.all(3),
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.cyan, width: 2),
+            border: Border.all(color: Colors.teal, width: 2),
             borderRadius: BorderRadius.circular(10)
         ),
         child: Column(
@@ -234,6 +242,143 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
     }).toList();
   }
 
+  double totBusiness;
+  double newValueBusiness;
+
+  void retrieveZakatBusiness (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Business').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueBusiness = double.parse(result.data['zakatAmount'].toString());
+        print(newValueBusiness);
+        total += newValueBusiness;
+        //print(result.data['profit']);
+      });
+      totBusiness = total;
+    });
+  }
+
+  double totGold;
+  double newValueGold;
+
+  void retrieveZakatGold (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Gold').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueGold = double.parse(result.data['zakatAmount'].toString());
+        print(newValueGold);
+        total += newValueGold;
+        //print(result.data['profit']);
+      });
+      totGold = total;
+    });
+  }
+
+  double totSalary;
+  double newValueSalary;
+
+  void retrieveZakatSalary (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Salary').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueSalary = double.parse(result.data['zakatAmount'].toString());
+        print(newValueSalary);
+        total += newValueSalary;
+        //print(result.data['profit']);
+      });
+      totSalary = total;
+    });
+  }
+
+  double totSavings;
+  double newValueSavings;
+
+  void retrieveZakatSavings (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Savings').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueSavings = double.parse(result.data['zakatAmount'].toString());
+        print(newValueSavings);
+        total += newValueSavings;
+        //print(result.data['profit']);
+      });
+      totSavings = total;
+    });
+  }
+
+  double totPlant;
+  double newValuePlant;
+
+  void retrieveZakatPlant (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Plantation').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValuePlant = double.parse(result.data['zakatAmount'].toString());
+        print(newValuePlant);
+        total += newValuePlant;
+        //print(result.data['profit']);
+      });
+      totPlant = total;
+    });
+  }
+
+  double totTreasure;
+  double newValueTreasure;
+
+  void retrieveZakatTreasure (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Treasure').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueTreasure = double.parse(result.data['zakatAmount'].toString());
+        print(newValueTreasure);
+        total += newValueTreasure;
+        //print(result.data['profit']);
+      });
+      totTreasure = total;
+    });
+  }
+
+  double totLivestock;
+  double newValueLivestock;
+
+  void retrieveZakatLivestock (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Livestock: Cow').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueLivestock = double.parse(result.data['zakatAmount'].toString());
+        print(newValueLivestock);
+        total += newValueLivestock;
+        //print(result.data['profit']);
+      });
+      totLivestock = total;
+    });
+  }
+
+  double totLivestockGoat;
+  double newValueLivestockGoat;
+
+  void retrieveZakatLivestockGoat (){
+    double total = 0.0;
+    Firestore.instance.collection("zakat").where('userID', isEqualTo: userID).where('category', isEqualTo: 'Livestock: Goat').getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        newValueLivestockGoat = double.parse(result.data['zakatAmount'].toString());
+        print(newValueLivestockGoat);
+        total += newValueLivestockGoat;
+        //print(result.data['profit']);
+      });
+      totLivestockGoat = total;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -254,8 +399,108 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                     if(snapshot == null) return
                       Center(child: Text("Your records are empty\nPress '+' to add records.",
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
-                    return Column(
-                      children: zakatTrackerList(snapshot),
+                    return Container(
+                      height: 540,
+                      width: 700,
+                      padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
+                      margin: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.teal, width: 2),
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('Total', style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 35),),
+                          SizedBox(height: 20,),
+                          Row(
+                            children: [
+                              Text('Business', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totBusiness.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Gold', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totGold.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Salary', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totSalary.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Savings', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totSavings.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Plantation', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totPlant.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Treasure', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totTreasure.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Livestock: Cow', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totLivestock.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Livestock: Goat', style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                              Spacer(),
+                              Text(totLivestockGoat.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
+                            ],
+                          ),
+                          SizedBox(height: 50,),
+                          Align(
+                            alignment: Alignment.center,
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18)
+                              ),
+                              onPressed: (){
+                                setState(() {
+                                  retrieveZakatBusiness();
+                                  retrieveZakatGold();
+                                  retrieveZakatSalary();
+                                  retrieveZakatSavings();
+                                  retrieveZakatPlant();
+                                  retrieveZakatTreasure();
+                                  retrieveZakatLivestock();
+                                  retrieveZakatLivestockGoat();
+                                });
+                              },
+                              color: Colors.teal,
+                              child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
