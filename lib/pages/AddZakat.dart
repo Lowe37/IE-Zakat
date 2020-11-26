@@ -192,9 +192,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
   bool _validateAmount = false;
   bool _validateNote = false;
   bool _validateCategory = false;
-
-  String _errorCategory;
-  String _errorType;
+  bool _validateType = false;
 
   @override
   Widget build(BuildContext context) {
@@ -239,24 +237,36 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                   ),
                   SizedBox(height: 20,),
                   Text('Category', style: TextStyle(fontWeight: FontWeight.w400),),
-                  /*FormBuilderDropdown(
-                      items: ['Business', 'Salary', 'Savings', 'Plantation']
-                          .map((category) => DropdownMenuItem(
-                        value: category,
-                        child: Text('$category'),
-                      ))
-                          .toList(),
-                      validator: FormBuilderValidators.required(context),
-                      decoration: InputDecoration(
-                        //labelText: 'Email',
-                        errorText: _errorCategory,
+                  SizedBox(height: 10,),
+                  DropdownButtonFormField<String>(
+                    items: [
+                      DropdownMenuItem<String>(
+                        value: "Business",
+                        child: Text("Business"),
                       ),
-                      hint: Text("Select category"),
-                      isExpanded: true,
-                      onChanged: (val) {
-                        categoryText = val.toString();
-                      }
-                  ),*/
+                      DropdownMenuItem<String>(
+                        value: "Salary",
+                        child: Text("Salary"),
+                      ),
+                      DropdownMenuItem<String>(
+                        value: "Savings",
+                        child: Text("Savings"),
+                      ),
+                    ],
+                    decoration: InputDecoration(
+                        errorText: _validateCategory ? 'Select category' : null,
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(10),
+                        ),
+                    ),
+                    hint: Text("Select category"),
+                    onChanged: (value) async {
+                      setState(() {
+                        categoryText = value;
+                      });
+                    },
+                    value: categoryText,
+                  ),
                   SizedBox(height: 20,),
                   Text('Instruction'),
                   SizedBox(height: 10,),
@@ -265,24 +275,32 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                   Text('- Please select type Income only for category Savings.', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),),
                   SizedBox(height: 20,),
                   Text('Type', style: TextStyle(fontWeight: FontWeight.w400),),
-                  /*FormBuilderDropdown(
-                      items: ['Income', 'Expense']
-                          .map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Text('$type'),
-                      ))
-                          .toList(),
-                      validator: FormBuilderValidators.required(context),
-                      decoration: InputDecoration(
-                        //labelText: 'Email',
-                        errorText: _errorType,
+                  SizedBox(height: 10,),
+                  DropdownButtonFormField<String>(
+                    items: [
+                      DropdownMenuItem<String>(
+                        value: "Income",
+                        child: Text("Income"),
                       ),
-                      hint: Text("Select type"),
-                      isExpanded: true,
-                      onChanged: (val) {
-                        typeText = val.toString();
-                      }
-                  ),*/
+                      DropdownMenuItem<String>(
+                        value: "Expense",
+                        child: Text("Expense"),
+                      ),
+                    ],
+                    decoration: InputDecoration(
+                        errorText: _validateType ? 'Select type' : null,
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(10),
+                        ),
+                    ),
+                    hint: Text("Select type"),
+                    onChanged: (value) async {
+                      setState(() {
+                        typeText = value;
+                      });
+                    },
+                    value: typeText,
+                  ),
                   SizedBox(height: 20,),
                   Builder(
                     builder: (context) => RaisedButton(
@@ -296,10 +314,12 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                         }*/
                         setState(() {
                           nameController.text.isEmpty ? _validateAmount = true : _validateAmount = false;
+                          categoryText == null ? _validateCategory = true : _validateCategory = false;
+                          typeText == null ? _validateType = true : _validateType = false;
                           //noteController.text.isEmpty ?  _validateNote = true : _confirmDialog();
                           //_errorCategory == null ? _validateCategory = true : _validateCategory = false;
-                          _errorCategory == null ? _errorCategory = 'Select category.' : _errorCategory;
-                          _errorType == null ? _errorType = 'Select type.' : _errorType;
+                          //_errorCategory == null ? _errorCategory = 'Select category.' : _errorCategory;
+                          //_errorType == null ? _errorType = 'Select type.' : _errorType;
                           /*if(_errorCategory ==  null){
                             setState(() => _errorCategory = 'Select category.');
                           }
@@ -307,7 +327,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                             setState(() => _errorType = 'Select type.');
                           }*/
 
-                          if(_validateAmount == false && _errorCategory != null && _errorType != null){
+                          if(_validateAmount == false && _validateCategory == false && _validateType == false){
                             _confirmDialog();
                             /*_validateAmount = true;
                             _errorCategory = 'Select category.';
