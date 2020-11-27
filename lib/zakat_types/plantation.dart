@@ -103,6 +103,31 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
     });
   }
 
+  double totWeight;
+  double totPrice;
+  double newValueIncome;
+  double cropWeightVal;
+  double cropPriceVal;
+
+  void retrieveIncome (){
+    double totalWeight = 0.0;
+    double totalPrice = 0.0;
+    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Income').where('category', isEqualTo: 'Plantation').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((result) {
+        print(result.documentID);
+        //newValueIncome = double.parse(result.data['amount'].toString());
+        cropWeightVal = double.parse(result.data['cropWeight'].toString());
+        cropPriceVal = double.parse(result.data['cropPrice'].toString());
+        //print(newValueIncome);
+        totalWeight += cropWeightVal;
+        totalPrice += cropPriceVal;
+        //print(result.data['profit']);
+      });
+      totWeight = totalWeight;
+      totPrice = totalPrice;
+    });
+  }
+
   void retrieveExpense (){
     double total = 0.0;
     Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Expense').where('category', isEqualTo: 'Plantation').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
@@ -115,6 +140,72 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
       });
       totCost = total;
     });
+  }
+
+  Future<void> _confirmDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: AlertDialog(
+            title: Text('Confirm calculation?'),
+            content: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Zakat amount: "+naturalZakatText.replaceAllMapped(reg, mathFunc)),
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  inputData();
+                  addPlantationRecord();
+                  Navigator.pop(context);
+                  Flushbar(
+                    icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
+                    margin: EdgeInsets.all(8),
+                    borderRadius: 8,
+                    message:  "Your record has been added.",
+                    duration:  Duration(seconds: 3),
+                  )..show(context);
+                  /*Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                    return MyHomePage();
+                  }));*/
+                  totWeightController.clear();
+                  yieldPerKgController.clear();
+                  totCostController.clear();
+                  setState(() {
+                    naturalNetProfit = '0';
+                    naturalZakatText = '0';
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)
+                ),
+                child: Text('Confirm',style: TextStyle(fontWeight: FontWeight.bold),),
+                color: Colors.teal,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void calculateButton (){
@@ -191,6 +282,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
   bool _validateCost = false;
   bool _validateWeight = false;
   bool _validatePrice= false;
+  bool _validatePercentage = false;
 
   RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
   Function mathFunc = (Match match) => '${match[1]},';
@@ -219,6 +311,9 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                   ),
                   onPressed: (){
                     retrieveExpense();
+                    retrieveIncome();
+                    totWeightController.text = totWeight.toString();
+                    yieldPerKgController.text = totPrice.toString();
                     totCostController.text = totCost.toString();
                   },
                   child: Text('Retrieve Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
@@ -271,10 +366,30 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
             SizedBox(height: 20,),
             Text('Percentage'),
             SizedBox(height: 10,),
-            DropDown(
-                items: ["10%", "5%", "7.5%"],
+            DropdownButtonFormField<String>(
+                items: [
+                  DropdownMenuItem<String>(
+                    value: "10%",
+                    child: Text("10%"),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "5%",
+                    child: Text("5%"),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "7.5%",
+                    child: Text("7.5%"),
+                  ),
+                ],
+                decoration: InputDecoration(
+                  errorText: _validatePercentage ? 'Select percentage' : null,
+                  border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(10),
+                  ),
+                ),
                 hint: Text('Select percentage'),
                 isExpanded: true,
+                value: percentageText,
                 onChanged: (val) {
                   percentageText = val.toString();
                 }
@@ -329,6 +444,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                       totWeightController.text.isEmpty ? _validateWeight = true : _validateWeight = false;
                       yieldPerKgController.text.isEmpty ? _validatePrice = true : _validatePrice = false;
                       totCostController.text.isEmpty ? _validateCost = true : _validateCost = false;
+                      percentageText == null ? _validatePercentage = true : _validatePercentage = false;
                     });
                   },
                   color: Colors.green,
@@ -341,21 +457,13 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
                   ),
                   onPressed: () {
                     setState(() {
-                      if(totWeightController.text.isEmpty && yieldPerKgController.text.isEmpty && totCostController.text.isEmpty){
-                        _validateWeight = true;
-                        _validatePrice = true;
-                        _validateCost = true;
-                      } else {
-                        addPlantationRecord();
-                        Flushbar(
-                          icon: Icon(MdiIcons.checkCircle, color: Colors.green,),
-                          margin: EdgeInsets.all(8),
-                          borderRadius: 8,
-                          message:  "Your Zakat record has been added.",
-                          duration:  Duration(seconds: 3),
-                        )..show(context);
+                      totWeightController.text.isEmpty ? _validateWeight = true : _validateWeight = false;
+                      yieldPerKgController.text.isEmpty ? _validatePrice = true : _validatePrice = false;
+                      totCostController.text.isEmpty ? _validateCost = true : _validateCost = false;
+                      percentageText == null ? _validatePercentage = true : _validatePercentage = false;
+                      if(_validateWeight == false && _validateCost == false && _validatePrice == false && _validatePercentage == false){
+                        _confirmDialog();
                       }
-
                     });
                   },
                   color: Colors.blue,
@@ -372,6 +480,7 @@ class _plantationState extends State<plantation> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     retrieveExpense();
+    retrieveIncome();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.cyan,

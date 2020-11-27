@@ -190,6 +190,7 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
   bool naturalWajibZakat = false; //condition to pay zakat or not
   String percentageText;
   bool _validateProfit = false;
+  bool _validateType = false;
 
   RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
   Function mathFunc = (Match match) => '${match[1]},';
@@ -230,10 +231,26 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
             SizedBox(height: 20,),
             Text('Percentage'),
             SizedBox(height: 10,),
-            DropDown(
-                items: ["Buried 20%", "Valuable 2.5%"],
+            DropdownButtonFormField<String>(
+                items: [
+                  DropdownMenuItem<String>(
+                    value: "Buried 20%",
+                    child: Text("Buried 20%"),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: "Valuable 2.5%",
+                    child: Text("Valuable 2.5%"),
+                  ),
+                ],
+                decoration: InputDecoration(
+                  errorText: _validateType ? 'Select type' : null,
+                  border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(10),
+                  ),
+                ),
                 hint: Text('Select type'),
                 isExpanded: true,
+                value: percentageText,
                 onChanged: (val) {
                   percentageText = val.toString();
                 }
@@ -281,6 +298,7 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
                     setState(() {
                       calculateButton();
                       totWeightController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      percentageText == null ? _validateType = true : _validateType = false;
                     });
                   },
                   color: Colors.green,
@@ -294,7 +312,8 @@ class _TreasureState extends State<Treasure> with SingleTickerProviderStateMixin
                   onPressed: () {
                     setState(() {
                       totWeightController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
-                      if(_validateProfit == false){
+                      percentageText == null ? _validateType = true : _validateType = false;
+                      if(_validateProfit == false && _validateType == false){
                         _confirmDialog();
                       }
                     });

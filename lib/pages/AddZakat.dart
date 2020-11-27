@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dropdown/flutter_dropdown.dart';
 import 'package:flutteriezakat/pages/homepage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flushbar/flushbar.dart';
@@ -19,9 +18,13 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
   final profitController = new TextEditingController();
   final costController = new TextEditingController();
   final noteController = new TextEditingController();
+  final cropWeightController = new TextEditingController();
+  final cropPriceController = new TextEditingController();
 
   @override
   void dispose() {
+    cropWeightController.dispose();
+    cropPriceController.dispose();
     noteController.dispose();
     nameController.dispose();
     costOrProfitController.dispose();
@@ -76,6 +79,9 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
       break;
       case "Plantation" : {
         colorValText = "0xFFE53935";
+        print("plant");
+        _enableCropWeight = true;
+        _enableCropPrice = true;
       }
       break;
     }
@@ -93,6 +99,29 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
       'type' : typeText,
       'date' : _date,
       'colorVal' : colorValText,
+      'cropWeight' : cropWeightController.text,
+      'cropPrice' : cropPriceController.text,
+
+    }).then((value){
+      print(value.documentID);
+      Firestore.instance.collection('zakatTracker').document(value.documentID).updateData({
+        'id' : value.documentID,
+      });
+    });
+  }
+
+  void addZakatTrackerPlantation() async {
+    ColourValue();
+    Firestore.instance.collection('zakatTracker').add({
+      'userID' : userID,
+      'amount': nameController.text,
+      'note' : noteController.text.isEmpty ? "No note added" : "No note added",
+      'category' : categoryText,
+      'type' : typeText,
+      'date' : _date,
+      'colorVal' : colorValText,
+      'cropWeight' : cropWeightController.text,
+      'cropPrice' : cropPriceController.text,
 
     }).then((value){
       print(value.documentID);
@@ -193,6 +222,11 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
   bool _validateNote = false;
   bool _validateCategory = false;
   bool _validateType = false;
+  bool _validateCropWeight = false;
+  bool _validateCropPrice = false;
+  bool _enableCropWeight = false;
+  bool _enableCropPrice = false;
+  bool _enableAmount = true;
 
   @override
   Widget build(BuildContext context) {
@@ -209,20 +243,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
             children: [
               ListBody(
                 children: <Widget>[
-                  Text('Amount', style: TextStyle(fontWeight: FontWeight.w400),),
-                  SizedBox(height: 10,),
-                  TextField(
-                    keyboardType: TextInputType.number,
-                    controller: nameController,
-                    decoration: InputDecoration(
-                        errorText: _validateAmount ? 'Amount is required' : null,
-                        border: new OutlineInputBorder(
-                          borderRadius: new BorderRadius.circular(10),
-                        ),
-                        hintText: '0'
-                    ),
-                  ),
-                  SizedBox(height: 20,),
+                 /*SizedBox(height: 20,),
                   Text('Note', style: TextStyle(fontWeight: FontWeight.w400),),
                   SizedBox(height: 10,),
                   TextField(
@@ -234,8 +255,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                         ),
                         hintText: 'Note'
                     ),
-                  ),
-                  SizedBox(height: 20,),
+                  ),*/
                   Text('Category', style: TextStyle(fontWeight: FontWeight.w400),),
                   SizedBox(height: 10,),
                   DropdownButtonFormField<String>(
@@ -252,6 +272,10 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                         value: "Savings",
                         child: Text("Savings"),
                       ),
+                      DropdownMenuItem<String>(
+                        value: "Plantation",
+                        child: Text("Plantation"),
+                      ),
                     ],
                     decoration: InputDecoration(
                         errorText: _validateCategory ? 'Select category' : null,
@@ -263,6 +287,15 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     onChanged: (value) async {
                       setState(() {
                         categoryText = value;
+                        if(categoryText == "Plantation"){
+                          _enableCropWeight = true;
+                          _enableCropPrice = true;
+                          _enableAmount = false;
+                        } else {
+                          _enableAmount = true;
+                          _enableCropWeight = false;
+                          _enableCropPrice = false;
+                        }
                       });
                     },
                     value: categoryText,
@@ -302,6 +335,51 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     value: typeText,
                   ),
                   SizedBox(height: 20,),
+                  Text('Amount', style: TextStyle(fontWeight: FontWeight.w400),),
+                  SizedBox(height: 10,),
+                  TextField(
+                    enabled: _enableAmount,
+                    keyboardType: TextInputType.number,
+                    controller: nameController,
+                    decoration: InputDecoration(
+                        errorText: _validateAmount ? 'Amount is required' : null,
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(10),
+                        ),
+                        hintText: '0'
+                    ),
+                  ),
+                  SizedBox(height: 20,),
+                  Text('Crop weight for Plantation', style: TextStyle(fontWeight: FontWeight.w400),),
+                  SizedBox(height: 10,),
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    enabled: _enableCropWeight,
+                    controller: cropWeightController,
+                    decoration: InputDecoration(
+                        errorText: _validateCropWeight ? 'Crop weight is required' : null,
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(10),
+                        ),
+                        hintText: 'Crop weight'
+                    ),
+                  ),
+                  SizedBox(height: 20,),
+                  Text('Crop price/Kg', style: TextStyle(fontWeight: FontWeight.w400),),
+                  SizedBox(height: 10,),
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    enabled: _enableCropPrice,
+                    controller: cropPriceController,
+                    decoration: InputDecoration(
+                        errorText: _validateCropPrice ? 'Crop price is required' : null,
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(10),
+                        ),
+                        hintText: 'Crop price'
+                    ),
+                  ),
+                  SizedBox(height: 20,),
                   Builder(
                     builder: (context) => RaisedButton(
                       shape: RoundedRectangleBorder(
@@ -316,6 +394,8 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                           nameController.text.isEmpty ? _validateAmount = true : _validateAmount = false;
                           categoryText == null ? _validateCategory = true : _validateCategory = false;
                           typeText == null ? _validateType = true : _validateType = false;
+                          cropWeightController.text.isEmpty ? _validateCropWeight = true : _validateCropWeight = false;
+                          cropPriceController.text.isEmpty ? _validateCropPrice = true : _validateCropPrice = false;
                           //noteController.text.isEmpty ?  _validateNote = true : _confirmDialog();
                           //_errorCategory == null ? _validateCategory = true : _validateCategory = false;
                           //_errorCategory == null ? _errorCategory = 'Select category.' : _errorCategory;
