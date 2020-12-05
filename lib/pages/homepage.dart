@@ -393,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       },
                       color: Colors.teal,
-                      child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                      child: Text('Calculate', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
                     ),
                   ],
                 );

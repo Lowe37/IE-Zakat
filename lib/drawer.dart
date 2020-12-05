@@ -69,15 +69,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
               child: Text('Email: '+userEmail??'Could not display email', style: TextStyle(color: Colors.white, fontSize: 20),),
             ),
           ),
-          /*ListTile(
-            leading: Icon(MdiIcons.checkBold),
-            title: Text('Zakat Tracker'),
-            onTap: (){
-              Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => zakatTrackerHome()
-              ));
-            },
-          ),*/
           ListTile(
             leading: Icon(MdiIcons.calculator),
             title: Text('Zakat Calculator'),
@@ -88,7 +79,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             },
           ),
           ListTile(
-            leading: Icon(MdiIcons.bookOpenVariant),
+            leading: Icon(MdiIcons.chartBar),
             title: Text('Statistics'),
             onTap: (){
               Navigator.push(context, new MaterialPageRoute(

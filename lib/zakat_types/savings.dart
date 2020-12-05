@@ -43,16 +43,16 @@ class _SavingsState extends State<Savings> {
     //print(goldPrice);
     double eligiblePrice = goldPrice*5.58;
     double annualProfit = double.parse(annualProfitController.text);
-    //double annualCost = double.parse(annualCostController.text);
-    //double netProfit = annualProfit-annualCost;
-    netProfitText = annualProfit.toString();
+    double annualCost = double.parse(annualCostController.text);
+    double netProfit = annualProfit-annualCost;
+    netProfitText = netProfit.toString();
     print(netProfitText);
-    double zakatAmount = annualProfit*2.5/100;
+    double zakatAmount = netProfit*2.5/100;
     print(zakatAmount);
     eligiblePriceText = eligiblePrice.toString();
     smallBusinessZakatText = zakatAmount.toString();
 
-    if(annualProfit < eligiblePrice){
+    if(netProfit < eligiblePrice){
       //print('No zakat');
       String noZakatText = '0';
       smallBusinessZakatText = noZakatText;
@@ -130,7 +130,7 @@ class _SavingsState extends State<Savings> {
 
   void retrieveExpense (){
     double total = 0.0;
-    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Expense').where('category', isEqualTo: 'Income').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
+    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Expense').where('category', isEqualTo: 'Savings').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
       querySnapshot.documents.forEach((result) {
         print(result.documentID);
         newValueExpense = double.parse(result.data['amount'].toString());
@@ -140,34 +140,6 @@ class _SavingsState extends State<Savings> {
       });
       totCost = total;
     });
-  }
-
-  void addBusinessRecord () async {
-    Firestore.instance.collection('zakat').add({
-      'category': 'Savings',
-      'zakatAmount' : smallBusinessZakatText,
-      'wajibZakat' : wajibZakat,
-      'date' : _date,
-      'userID' : userID,
-
-    }).then((value){
-      print(value.documentID);
-      Firestore.instance.collection('zakat').document(value.documentID).updateData({
-        'id' : value.documentID,
-      });
-    });
-  }
-
-  String userID;
-
-  final FirebaseAuth auth = FirebaseAuth.instance;
-
-  void inputData() async {
-    final FirebaseUser user = await auth.currentUser();
-    final uid = user.uid;
-    userID = uid;
-    print(userID);
-    // here you write the codes to input the data into firestore
   }
 
   Future<void> _confirmDialog() async {
@@ -235,6 +207,33 @@ class _SavingsState extends State<Savings> {
     );
   }
 
+  void addBusinessRecord () async {
+    Firestore.instance.collection('zakat').add({
+      'category': 'Business',
+      'zakatAmount' : smallBusinessZakatText,
+      'wajibZakat' : wajibZakat,
+      'date' : _date,
+      'userID' : userID,
+
+    }).then((value){
+      print(value.documentID);
+      Firestore.instance.collection('zakat').document(value.documentID).updateData({
+        'id' : value.documentID,
+      });
+    });
+  }
+
+  String userID;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  void inputData() async {
+    final FirebaseUser user = await auth.currentUser();
+    final uid = user.uid;
+    userID = uid;
+    print(userID);
+    // here you write the codes to input the data into firestore
+  }
+
   bool _validateProfit = false;
   bool _validateCost = false;
 
@@ -286,6 +285,21 @@ class _SavingsState extends State<Savings> {
                   hintText: '0'
               ),
             ),
+
+            SizedBox(height: 20,),
+            Text('Total Expense', style: TextStyle(fontWeight: FontWeight.w400),),
+            SizedBox(height: 10,),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: annualCostController,
+              decoration: InputDecoration(
+                  errorText: _validateCost? 'Enter expense value': null,
+                  border: new OutlineInputBorder(
+                    borderRadius: new BorderRadius.circular(10),
+                  ),
+                  hintText: '0'
+              ),
+            ),
             SizedBox(height: 20,),
 
             Divider(
@@ -304,7 +318,6 @@ class _SavingsState extends State<Savings> {
             SizedBox(height: 10,),
             Text(smallBusinessZakatText.replaceAllMapped(reg, mathFunc), style: TextStyle(
                 fontWeight: FontWeight.w100, fontSize: 20),),
-
             SizedBox(height: 20,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -345,11 +358,12 @@ class _SavingsState extends State<Savings> {
                       borderRadius: BorderRadius.circular(18)
                   ),
                   onPressed: () {
-                    addBusinessRecord();
                     setState(() {
-                      annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      //annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
                       //annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
-                      if(_validateProfit == false){
+                      annualProfitController.text.isEmpty ? _validateProfit = true : _validateProfit = false;
+                      annualCostController.text.isEmpty ?  _validateCost = true : _validateCost = false;
+                      if(_validateProfit == false && _validateCost == false){
                         _confirmDialog();
                       }
                     });

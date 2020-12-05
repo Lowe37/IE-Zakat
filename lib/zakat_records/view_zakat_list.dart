@@ -52,6 +52,7 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
   void initState() {
     super.initState();
     inputData();
+    totAll = 0;
     totBusiness = 0;
     totGold = 0;
     totSalary = 0;
@@ -378,6 +379,13 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
     });
   }
 
+  double totAll;
+  double newValueAll;
+
+  void retrieveZakatAll (){
+      totAll = totLivestock+totTreasure+totPlant+totSavings+totSalary+totBusiness+totGold+totLivestockGoat;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -400,7 +408,7 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                       Center(child: Text("Your records are empty\nPress '+' to add records.",
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, fontFamily: 'Nunito'),));
                     return Container(
-                      height: 540,
+                      height: 580,
                       width: 700,
                       padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
                       margin: EdgeInsets.all(3),
@@ -411,7 +419,7 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text('Total', style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 35),),
+                          Text('Zakat Summary', style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.bold, fontSize: 35),),
                           SizedBox(height: 20,),
                           Row(
                             children: [
@@ -476,6 +484,14 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                               Text(totLivestockGoat.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20),),
                             ],
                           ),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Text('Total', style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.amber),),
+                              Spacer(),
+                              Text(totAll.toString().replaceAllMapped(reg, mathFunc), style: TextStyle(fontFamily: 'Nunito', fontSize: 20, color: Colors.amber),),
+                            ],
+                          ),
                           SizedBox(height: 50,),
                           Align(
                             alignment: Alignment.center,
@@ -493,10 +509,11 @@ class _viewZakatListState extends State<viewZakatList> with SingleTickerProvider
                                   retrieveZakatTreasure();
                                   retrieveZakatLivestock();
                                   retrieveZakatLivestockGoat();
+                                  retrieveZakatAll();
                                 });
                               },
                               color: Colors.teal,
-                              child: Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                              child: Text('Calculate', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
                             ),
                           ),
                         ],

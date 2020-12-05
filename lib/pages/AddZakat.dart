@@ -161,7 +161,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Amount: "+nameController.text),
+                      Text("Amount: "+nameController.text.replaceAllMapped(reg, mathFunc)),
                       SizedBox(height: 10,),
                       Text("Category: "+categoryText),
                       SizedBox(height: 10,),
@@ -253,19 +253,6 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
             children: [
               ListBody(
                 children: <Widget>[
-                 /*SizedBox(height: 20,),
-                  Text('Note', style: TextStyle(fontWeight: FontWeight.w400),),
-                  SizedBox(height: 10,),
-                  TextField(
-                    controller: noteController,
-                    decoration: InputDecoration(
-                        errorText: _validateNote ? 'Note is required' : null,
-                        border: new OutlineInputBorder(
-                          borderRadius: new BorderRadius.circular(10),
-                        ),
-                        hintText: 'Note'
-                    ),
-                  ),*/
                   Text('Category', style: TextStyle(fontWeight: FontWeight.w400),),
                   SizedBox(height: 10,),
                   DropdownButtonFormField<String>(
@@ -297,6 +284,38 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     onChanged: (value) async {
                       setState(() {
                         categoryText = value;
+
+                        if(categoryText == "Business"){
+                          _enableAmount = true;
+                          _enableCropPrice = false;
+                          _enableCropWeight = false;
+                          _validateCropWeight = false;
+                          _validateCropPrice = false;
+                          cropWeightController.text = "0";
+                          cropPriceController.text = "0";
+                        }
+
+                        if(categoryText == "Salary"){
+                          _enableAmount = true;
+                          _enableCropPrice = false;
+                          _enableCropWeight = false;
+                          _validateCropWeight = false;
+                          _validateCropPrice = false;
+                          cropWeightController.text = "0";
+                          cropPriceController.text = "0";
+                        }
+
+                        if(categoryText == "Savings"){
+                          _enableAmount = true;
+                          _enableCropPrice = false;
+                          _enableCropWeight = false;
+                          _validateCropWeight = false;
+                          _validateCropPrice = false;
+                          cropWeightController.text = "0";
+                          cropPriceController.text = "0";
+                        }
+
+
                         if(categoryText == "Plantation"){
                           _enableCropWeight = true;
                           _enableCropPrice = true;
@@ -310,10 +329,6 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     },
                     value: categoryText,
                   ),
-                  SizedBox(height: 20,),
-                  Text('Instruction'),
-                  SizedBox(height: 10,),
-                  Text('- Please select type Income only for category Savings.', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),),
                   SizedBox(height: 20,),
                   Text('Type', style: TextStyle(fontWeight: FontWeight.w400),),
                   SizedBox(height: 10,),
@@ -338,6 +353,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     onChanged: (value) async {
                       setState(() {
                         typeText = value;
+
                         if(categoryText == "Plantation"){
                           if(typeText == "Income"){
                             nameController.text = "0";
@@ -391,7 +407,7 @@ class _AddZakatPageState extends State<AddZakatPage> with SingleTickerProviderSt
                     ),
                   ),
                   SizedBox(height: 20,),
-                  Text('Crop price/Kg', style: TextStyle(fontWeight: FontWeight.w400),),
+                  Text('Crop price/Kg for Plantation', style: TextStyle(fontWeight: FontWeight.w400),),
                   SizedBox(height: 10,),
                   TextField(
                     keyboardType: TextInputType.number,

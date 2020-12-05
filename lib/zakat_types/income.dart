@@ -130,7 +130,7 @@ class _incomeState extends State<income> {
 
   void retrieveExpense (){
     double total = 0.0;
-    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Expense').where('category', isEqualTo: 'Income').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
+    Firestore.instance.collection("zakatTracker").where('type', isEqualTo: 'Expense').where('category', isEqualTo: 'Salary').where('userID', isEqualTo: userID).getDocuments().then((querySnapshot) {
       querySnapshot.documents.forEach((result) {
         print(result.documentID);
         newValueExpense = double.parse(result.data['amount'].toString());
